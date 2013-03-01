@@ -67,14 +67,14 @@
 			color: #fff;
 			text-shadow: none;
 		}
-		
+
 		input[type="submit"]:focus, input[type="button"]:focus, input[type="text"]:focus, button, :focus {
 			outline : none;
 		}
 		input[type="submit"]::-moz-focus-inner, input[type="button"]::-moz-focus-inner, button::-moz-focus-inner {
 			border : 0;
 		}
-		
+
 		html {
 			-webkit-text-size-adjust: none;
 		}
@@ -101,6 +101,10 @@
 			padding: 3px 0 5px 0;
 			cursor: pointer;
 			margin-top: 80px;
+		}
+		.game {
+			margin-top: 50px;
+			display: none;
 		}
 		.content {
 			width: 538px;
@@ -143,10 +147,13 @@
 <div class="content">
 	<div id="fb-root"></div>
 	<h1>Cluck Button</h1>
-	<h2>a social network for chicks</h2>
+	<h2>a video game for chicks</h2>
 	
 
 	<button class="start">start clucking</button>
+	<div class="game">
+		<iframe src="http://e.gamesalad.com/play/109789" width="480" height="353" allowtransparency="true" scrolling="no"></iframe>
+	</div>
 	<br /><br /><br /><br /><br />
 	<div class="chicks"></div>
 	<br /><br /><br /><br /><br />
@@ -171,6 +178,9 @@
 			});
 			audio.get(0).play();
 			count++;
+			
+			$('.game').show();
+			$('.start').hide();
 		});
 	});
 </script>
