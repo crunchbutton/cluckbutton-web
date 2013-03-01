@@ -67,14 +67,14 @@
 			color: #fff;
 			text-shadow: none;
 		}
-
+		
 		input[type="submit"]:focus, input[type="button"]:focus, input[type="text"]:focus, button, :focus {
 			outline : none;
 		}
 		input[type="submit"]::-moz-focus-inner, input[type="button"]::-moz-focus-inner, button::-moz-focus-inner {
 			border : 0;
 		}
-
+		
 		html {
 			-webkit-text-size-adjust: none;
 		}
@@ -82,7 +82,7 @@
 		body {
 			background: #eaf7fd;
 		}
-		h1, h2, button {
+		h1, h2, h3, button {
 			font-family: 'Amatic SC', cursive;
 		}
 		h1 {
@@ -90,6 +90,13 @@
 		}
 		h2 {
 			font-size: 35px;
+		}
+		h3 {
+			font-size: 25px;
+			margin-bottom: 50px;
+		}
+		.directions {
+			margin-top: 50px;
 		}
 		.start {
 			background: #f21622;
@@ -102,88 +109,76 @@
 			cursor: pointer;
 			margin-top: 80px;
 		}
-		.game {
-			margin-top: 50px;
-			display: none;
-		}
 		.content {
 			width: 538px;
 			text-align: center;
 			margin: 0 auto;
-			margin-top: 50px;
-			background: url(/clouds.png) no-repeat;
+			margin-top: 30px;
 			padding-top: 50px;
 		}
-		.chicks {
-			background: url(/chicks.png);
-			width: 392px;
-			height: 81px;
-			margin: 0 auto;
+		.need-rotate {
+			margin-top: 80px;
+			display: none;
 		}
+
 		@media only screen 
 		and (min-device-width : 320px) 
 		and (max-device-width : 480px) {
-			.chicks {
-				background: url(/chicks@2x.png);
-				width: 300px;
-				height: 62px;
-				background-size: contain;
-			}
-			
 			.content {
 				width: 320px;
-				margin-top: 0px;
-				padding-top: 30px;
+				margin: 0;
+				padding: 0;
 			}
 			.start {
 				margin-top: 60px;
 			}
+			.directions {
+				display: none;
+			}
 		}
+@media screen and (device-width:320px) and (orientation:portrait) {
+    .need-rotate {
+    	display: block;
+    }
+    #jsapp {
+    	display: none;
+    }
+}
+
+@media screen and (device-width:320px) and (orientation:landscape) {
+    .need-rotate {
+    	display: none;
+    }
+    #jsapp {
+    	display: block;
+    }
+}
 	</style>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 	<script type="application/x-javascript">addEventListener('touchstart',function(){}); addEventListener('load', function(event) {setTimeout(scrollTo, 80, 0, 1);}, false);</script>
 </head>
 <body>
 <div class="content">
-	<div id="fb-root"></div>
-	<h1>Cluck Button</h1>
-	<h2>a video game for chicks</h2>
-	
-
-	<button class="start">start clucking</button>
-	<div class="game">
-		<iframe src="http://e.gamesalad.com/play/109789" width="480" height="353" allowtransparency="true" scrolling="no"></iframe>
+	<div id="jsapp">
+		<script type="text/javascript" src="lib/melonJS-0.9.6.js"></script>
+		<script type="text/javascript" src="lib/entities.js"></script>
+		<script type="text/javascript" src="lib/main.js"></script>
 	</div>
-	<br /><br /><br /><br /><br />
-	<div class="chicks"></div>
-	<br /><br /><br /><br /><br />
-	<div class="fb-like-box" data-href="http://www.facebook.com/crunchbutton" data-width="262" data-show-faces="false" data-stream="false" data-header="false"></div>
-	<audio src="/pukpuk.mp3" class="audio"></audio>
+	<div class="need-rotate">
+		<h1>Please rotate your screen</h1>
+		<br /><br /><br /><br />
+		<h3>To play CluckButton, you will need to rotate your screen to landscape mode.</h3>
+		<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+	</div>
+
+	<div class="directions">
+		<h3>use the <b>arrow keys</b> to move. press <b>space</b> to jump.</h3>
+		<div class="fb-like-box" data-href="http://www.facebook.com/crunchbutton" data-width="262" data-show-faces="false" data-stream="false" data-header="false"></div>
+	</div>
 </div>
+<div id="fb-root"></div>
 </body>
-<script>
-	$(function() {
-		var count = 0;
-		$('.start').click(function() {
-			var audio = $('.audio').clone();
-			var random = Math.floor((Math.random()*10)+1);
-			if (count == random) {
-				audio.attr('src', '/rooster.mp3');
-				count = 0;
-			} else if (count >= 11) {
-				count = 0;
-			}
-			audio.bind('ended', function() {
-				$(this).remove();
-			});
-			audio.get(0).play();
-			count++;
-			
-			$('.game').show();
-			$('.start').hide();
-		});
-	});
-</script>
+
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
