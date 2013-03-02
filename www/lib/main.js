@@ -26,7 +26,17 @@ var g_resources = [
 		name: "red_run",
 		type: "image",
 		src: "data/img/red_run.png"
-	}, 
+	},
+	{
+		name: "blue_run",
+		type: "image",
+		src: "data/img/blue_run.png"
+	},
+	{
+		name: "black_jump",
+		type: "image",
+		src: "data/img/black_jump.png"
+	},
 	{
 		name: "title_screen",
 		type: "image",
@@ -147,11 +157,10 @@ var jsApp = {
 		me.state.change(me.state.MENU);
 	}
 
-}; // jsApp
+};
 
-/* the in game stuff*/
+
 var PlayScreen = me.ScreenObject.extend({
- 
 	onResetEvent: function() {
 		me.audio.playTrack('jump-and-run');
 
@@ -162,18 +171,12 @@ var PlayScreen = me.ScreenObject.extend({
 		me.game.addHUD(0, 430, 640, 60);
  
 		// add a new HUD item
-		me.game.HUD.addItem("score", new ScoreObject(620, 10));
+		me.game.HUD.addItem('score', new ScoreObject(320, 10));
  
 		// make sure everyhting is in the right order
 		me.game.sort();
  
 	},
- 
-	/* ---
- 
-	action to perform when game is finished (state change)
- 
-	--- */
 	onDestroyEvent: function() {
 		// remove the HUD
 		me.game.disableHUD();

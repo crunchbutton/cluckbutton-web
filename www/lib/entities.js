@@ -1,30 +1,28 @@
-/*------------------- 
-a player entity
--------------------------------- */
+
+/**
+ * player
+ */
 var PlayerEntity = me.ObjectEntity.extend({
- 
-	/* -----
-	 
-		constructor
-	 
-		------ */
-	 
 	init: function(x, y, settings) {
 		g = this;
+		settings.image = 'black_jump';
+		settings.spritewidth = 64;
+
 		// call the constructor
 		this.parent(x, y, settings);
-	 
 		// set the walking & jumping speed
 		this.setVelocity(5, 15);
-	 
 		// adjust the bounding box
-		this.updateColRect(8, 48, -1, 0);
-	 
+//		this.updateColRect(8, 48, -1, 0);
 		// set the display to follow our position on both axis
 		me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
-	 
+		
+
+		
+//		this.image = "red_run";
+//		this.spritewidth = 64;
+//		this.image = character[chosen];
 	},
-	
 	death: function() {
 		if (!this.alive) {
 			return;
@@ -66,6 +64,15 @@ var PlayerEntity = me.ObjectEntity.extend({
 				// play some audio 
 				me.audio.play('jump');
 			}
+		}
+		
+		// update to jumping sprite
+		if (this.jumping && !this.falling) {
+			this.image = me.loader.getImage('black_jump');
+		} else if (this.falling) {
+			this.image = me.loader.getImage('blue_run');		
+		} else {
+			this.image = me.loader.getImage('red_run');
 		}
 
 		// check & update player movement
@@ -110,9 +117,10 @@ var PlayerEntity = me.ObjectEntity.extend({
 	}
 });
 
-/*----------------
- a Coin entity
------------------------- */
+
+/**
+ * collectable coin - gives points
+ */
 var CoinEntity = me.CollectableEntity.extend({
 	// extending the init function is not mandatory
 	// unless you need to add some extra initialization
@@ -140,9 +148,9 @@ var CoinEntity = me.CollectableEntity.extend({
 });
 
 
-/*----------------
- a death entity
------------------------- */
+/**
+ * generic instant death entity
+ */
 var DeathEntity = me.InvisibleEntity.extend({
 	init: function(x, y, settings) {
 		// call the parent constructor
@@ -156,9 +164,9 @@ var DeathEntity = me.InvisibleEntity.extend({
 
 
 
-/* --------------------------
-an enemy Entity
------------------------- */
+/**
+ * enemy
+ */
 var EnemyEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
 		// define this here instead of tiled
@@ -234,24 +242,19 @@ var EnemyEntity = me.ObjectEntity.extend({
 
 
 
-/*-------------- 
-a score HUD Item
---------------------- */
- 
+/**
+ * score and HUD
+ */
 var ScoreObject = me.HUD_Item.extend({
 	init: function(x, y) {
 		// call the parent constructor
 		this.parent(x, y);
 		// create a font
-		this.font = new me.BitmapFont("32x32_font", 32);
+		this.font = new me.BitmapFont('32x32_font', 32);
 	},
- 
-	/* -----
- 
-	draw our score
- 
-	------ */
+
 	draw: function(context, x, y) {
+		console.log(this.value);
 		this.font.draw(context, this.value, this.pos.x + x, this.pos.y + y);
 	}
  
