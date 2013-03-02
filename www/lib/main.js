@@ -3,63 +3,63 @@ var g_resources = [
 	{
 		name: "area01_level_tiles",
 		type: "image",
-		src: "data/area01_tileset/area01_level_tiles.png"
+		src: "data/tileset/area01_level_tiles.png"
 	},
 	{
 		name: "metatiles32x32",
 		type: "image",
-		src: "data/area01_tileset/metatiles32x32.png"
+		src: "data/tileset/metatiles32x32.png"
 	}, 
 	// our level
 	{
 		name: "area01",
 		type: "tmx",
-		src: "data/area01.tmx"
+		src: "data/map/area01.tmx"
 	}, 
 	{
 		name: "area02",
 		type: "tmx",
-		src: "data/area02.tmx"
+		src: "data/map/area02.tmx"
 	}, 
 	// the main player spritesheet
 	{
 		name: "red_run",
 		type: "image",
-		src: "data/sprite/red_run.png"
+		src: "data/img/red_run.png"
 	}, 
 	{
 		name: "title_screen",
 		type: "image",
-		src: "data/title_screen_cluckbutton.jpg"
+		src: "data/bg/title.jpg"
 	},
 	// the parallax background
 	{
-		name: "area01_bkg0",
+		name: "clouds_small",
 		type: "image",
-		src: "data/area01_parallax/area01_bkg0.png"
+		src: "data/bg/clouds_small.png"
 	},
 	{
-		name: "area01_bkg1",
+		name: "clouds_large",
 		type: "image",
-		src: "data/area01_parallax/area01_bkg1.png"
+		src: "data/bg/clouds_large.png"
 	}, 
 	// the spinning coin spritesheet
 	{
 		name: "spinning_coin_gold",
 		type: "image",
-		src: "data/sprite/spinning_coin_gold.png"
+		src: "data/img/spinning_coin_gold.png"
 	}, 
 	// our enemty entity
 	{
 		name: "wheelie_right",
 		type: "image",
-		src: "data/sprite/wheelie_right.png"
+		src: "data/img/wheelie_right.png"
 	},
 	// game font
 	{
 		name: "32x32_font",
 		type: "image",
-		src: "data/sprite/32x32_font.png"
+		src: "data/img/32x32_font.png"
 	}, 
 	// audio resources
 	{
@@ -78,12 +78,14 @@ var g_resources = [
 		src: "data/audio/",
 		channel: 1
 	}, {
-		name: "DST-InertExponent",
+		name: "jump-and-run",
 		type: "audio",
 		src: "data/audio/",
 		channel: 1
 	}
 ];
+
+var g = null;
 
 var jsApp = {
 	config: {
@@ -111,6 +113,8 @@ var jsApp = {
 		me.state.change(me.state.LOADING);
 		
 		me.debug.renderHitBox = true;
+		
+		me.game.DEATH_OBJECT = 'death_object';
 
 	},
 
@@ -132,6 +136,7 @@ var jsApp = {
 		me.entityPool.add("mainPlayer", PlayerEntity);
 		me.entityPool.add("CoinEntity", CoinEntity);
 		me.entityPool.add("EnemyEntity", EnemyEntity);
+		me.entityPool.add("DeathEntity", DeathEntity);
 	 
 		// enable the keyboard
 		me.input.bindKey(me.input.KEY.LEFT, "left");
@@ -148,7 +153,7 @@ var jsApp = {
 var PlayScreen = me.ScreenObject.extend({
  
 	onResetEvent: function() {
-		me.audio.playTrack("DST-InertExponent");
+		me.audio.playTrack('jump-and-run');
 
 		// load a level
 		me.levelDirector.loadLevel("area01");

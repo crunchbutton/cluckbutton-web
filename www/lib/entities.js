@@ -10,6 +10,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 		------ */
 	 
 	init: function(x, y, settings) {
+		g = this;
 		// call the constructor
 		this.parent(x, y, settings);
 	 
@@ -23,52 +24,61 @@ var PlayerEntity = me.ObjectEntity.extend({
 		me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
 	 
 	},
- 
+	
+	death: function() {
+		if (!this.alive) {
+			return;
+		}
+		me.audio.play('cling');
+		me.game.HUD.updateItemValue('score', -500);
+		me.levelDirector.loadLevel('area01');
+		
+		this.flicker(45);
+		this.alive = false;
+		var self = this;
 
-	/* -----
-	update the player pos
-	------ */
+		setTimeout(function() {
+			self.alive = true;
+		}, 500);
+	},
 	update: function() {
-	 
-		if (me.input.isKeyPressed('left'))
-		{
+		if (me.input.isKeyPressed('left')) {
 			// flip the sprite on horizontal axis
 			this.flipX(true);
 			// update the entity velocity
 			this.vel.x -= this.accel.x * me.timer.tick;
-		}
-		else if (me.input.isKeyPressed('right'))
-		{
+		} else if (me.input.isKeyPressed('right')) {
 			// unflip the sprite
 			this.flipX(false);
 			// update the entity velocity
 			this.vel.x += this.accel.x * me.timer.tick;
-		}
-		else
-		{
+		} else {
 			this.vel.x = 0;
 		}
+
 		if (me.input.isKeyPressed('jump')) {
-		   if (!this.jumping && !this.falling) 
-		   {
-		  	// set current vel to the maximum defined value
-		  	// gravity will then do the rest
-		  	this.vel.y = -this.maxVel.y * me.timer.tick;
-		  	// set the jumping flag
-		  	this.jumping = true;
-		  	// play some audio 
-		  	me.audio.play("jump");
-		   }
+			if (!this.jumping && !this.falling)  {
+				// set current vel to the maximum defined value
+				// gravity will then do the rest
+				this.vel.y = -this.maxVel.y * me.timer.tick;
+				// set the jumping flag
+				this.jumping = true;
+				// play some audio 
+				me.audio.play('jump');
+			}
 		}
-	 
-	 
+
 		// check & update player movement
 		this.updateMovement();
 	 
 		// check for collision
 		var res = me.game.collide(this);
-		 
-		if (res) {
+		
+		if (me.game.currentLevel.realheight - this.pos.y - this.hHeight < 0) {
+			this.death();
+		}
+
+		if (res && this.alive) {
 			if (res.obj.type == me.game.ENEMY_OBJECT) {
 				if ((res.y > 0) && ! this.jumping) {
 					// bounce (force jump)
@@ -82,6 +92,8 @@ var PlayerEntity = me.ObjectEntity.extend({
 					// let's flicker in case we touched an enemy
 					this.flicker(45);
 				}
+			} else if (res.obj.type == me.game.DEATH_OBJECT) {
+				this.death();
 			}
 		}
 	 
@@ -96,10 +108,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 		return false;   	
 	 
 	}
-
-
-
- 
 });
 
 /*----------------
@@ -132,6 +140,21 @@ var CoinEntity = me.CollectableEntity.extend({
 });
 
 
+/*----------------
+ a death entity
+------------------------ */
+var DeathEntity = me.InvisibleEntity.extend({
+	init: function(x, y, settings) {
+		// call the parent constructor
+		this.parent(x, y, settings);
+		this.type = me.game.DEATH_OBJECT;
+	},
+	onCollision: function () {
+	
+	}
+});
+
+
 
 /* --------------------------
 an enemy Entity
@@ -154,12 +177,14 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.walkLeft = true;
  
 		// walking & jumping speed
-		this.setVelocity(4, 6);
+		this.setVelocity(2, 6);
  
 		// make it collidable
 		this.collidable = true;
 		// make it a enemy object
 		this.type = me.game.ENEMY_OBJECT;
+		
+		this.updateColRect(8, 48, -1, 0);
  
 	},
  
