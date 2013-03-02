@@ -30,7 +30,7 @@
  <imagelayer name="Parallax_layer2" width="70" height="20">
   <image source="../bg/clouds_large.png"/>
   <properties>
-   <property name="ratio" value=".30"/>
+   <property name="ratio" value=".50"/>
   </properties>
  </imagelayer>
  <layer name="bgbg" width="70" height="20">

@@ -1,3 +1,4 @@
+var DEBUG = true;
 
 var g_resources = [
 	{
@@ -109,23 +110,12 @@ var jsApp = {
 		}
 		
 		me.loadingScreen = new LoadingScreen();
-				
-		// initialize the "audio"
-		me.audio.init("mp3,ogg");
-		
-		// set all resources to be loaded
+		me.audio.init('mp3,ogg');
 		me.loader.onload = this.loaded.bind(this);
-		
-		// set all resources to be loaded
 		me.loader.preload(g_resources);
-
-		// load everything & display a loading screen
-		me.state.change(me.state.LOADING);
-		
-		me.debug.renderHitBox = true;
-		
+		me.state.change(me.state.LOADING);		
+		me.debug.renderHitBox = DEBUG;
 		me.game.DEATH_OBJECT = 'death_object';
-
 	},
 
 	/* ---

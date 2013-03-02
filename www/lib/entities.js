@@ -170,7 +170,7 @@ var DeathEntity = me.InvisibleEntity.extend({
 var EnemyEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
 		// define this here instead of tiled
-		settings.image = "wheelie_right";
+		settings.image = 'wheelie_right';
 		settings.spritewidth = 64;
  
 		// call the parent constructor
@@ -195,6 +195,23 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.updateColRect(8, 48, -1, 0);
  
 	},
+	
+	death: function() {
+		this.flicker(45);
+		this.alive = false;
+		this.collidable = false;
+
+		tweenUp = new me.Tween(this.pos).to({y: this.pos.y-40}, 200).onComplete(function() {
+			tweenDown.start();
+		});
+		tweenUp.easing(me.Tween.Easing.Quartic.EaseOut);
+		tweenUp.start();
+		
+		tweenDown = new me.Tween(this.pos).to({y: me.game.currentLevel.realheight}, 500).onComplete(function() {
+
+		});
+		tweenDown.easing(me.Tween.Easing.Quartic.EaseIn);
+	},
  
 	// call by the engine when colliding with another object
 	// obj parameter corresponds to the other object (typically the player) touching this one
@@ -203,7 +220,7 @@ var EnemyEntity = me.ObjectEntity.extend({
 		// res.y >0 means touched by something on the bottom
 		// which mean at top position for this one
 		if (this.alive && (res.y > 0) && obj.falling) {
-			this.flicker(45);
+			this.death();
 		}
 	},
  
