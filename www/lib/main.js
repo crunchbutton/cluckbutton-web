@@ -1,6 +1,8 @@
 var DEBUG = true;
 
 
+
+
 // @todo add @2x detection
 
 var g_resources = [
@@ -123,6 +125,9 @@ var g_resources = [
 
 var g = null;
 
+/**
+ * the game
+ */
 var jsApp = {
 	config: {
 		width: 1136/2,
@@ -133,7 +138,7 @@ var jsApp = {
 			alert('Sorry but your browser does not support html 5 canvas. You will not be able to play CluckButton. Sorry!');
 			return;
 		}
-		
+
 		// prepare resources and init app
 		me.loadingScreen = new LoadingScreen();
 		me.audio.init('mp3,ogg');
@@ -148,7 +153,7 @@ var jsApp = {
 		// states and transitions
 		me.state.set(me.state.MENU, new TitleScreen());
 		me.state.set(me.state.PLAY, new PlayScreen());
-		me.state.set(me.state.PAUSE, new MenuScreen());
+		me.state.set(me.state.CONNECTING, new ConnetingScreen());
 		me.state.transition('fade', '#eaf7fd', 250);
 
 		// object pool
@@ -170,30 +175,36 @@ var jsApp = {
 };
 
 
+/**
+ * the game player screen
+ */
 var PlayScreen = me.ScreenObject.extend({
 	onResetEvent: function() {
 		me.audio.playTrack('jump-and-run');
 		me.levelDirector.loadLevel('area01');
 
 		me.input.bindKey(me.input.KEY.ENTER, 'menu', true);
-		
+
 		/* @todo: ios controls
 		me.game.add((new ControlsDpadRight(65,me.game.viewport.height-65)), 100);
 		me.game.add((new ControlsDpadLeft(20,me.game.viewport.height-65)), 100);
 		me.game.add((new ControlsButtonOne(me.game.viewport.width-65,me.game.viewport.height-65)), 100);
 		*/
 
-		me.game.addHUD(0, 0, 200, 60);
-		me.game.HUD.addItem('score', new ScoreObject(50, 0));
+		me.game.addHUD(0, 0, me.game.viewport.width, 60);
+		me.game.HUD.addItem('score', new ScoreObject(me.game.viewport.width-10, 0));
 
 		me.game.sort();
-		
 	},
 	onDestroyEvent: function() {
 		me.game.disableHUD();
 		me.audio.stopTrack();
+	},
+	onPauseEvent: function() {
+		console.log('OMG');
 	}
 });
+
 
 window.onReady(function() {
 	jsApp.onload();

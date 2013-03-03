@@ -179,13 +179,7 @@
 <div id="fb-root"></div>
 </body>
 
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=411729638889643";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
+
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -197,6 +191,56 @@
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
+  
+  function login() {
+    FB.login(function(response) {
+        if (response.authResponse) {
+            // connected
+            testAPI();
+        } else {
+            // cancelled
+        }
+    });
+}
+
+function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+        console.log('Good to see you, ' + response.name + '.');
+    });
+}
+  
+  
+  	window.fbAsyncInit = function() {
+		FB.init({
+			appId: '338554376246354',
+			status: true,
+			cookie: true,
+			xfbml: true,
+			oauth: true
+		});
+		
+FB.getLoginStatus(function(response) {
+  if (response.status === 'connected') {
+    // connected
+    jsApp.fbres = response;
+  } else if (response.status === 'not_authorized') {
+    // not_authorized
+//    login();
+  } else {
+    // not_logged_in
+//    login();
+  }
+ });
+	};
+
+(function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
 
 </script>
 </html>

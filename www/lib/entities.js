@@ -278,40 +278,27 @@ var DeathEntity = me.InvisibleEntity.extend({
 });
 
 
-
 /**
  * enemy
  */
 var EnemyEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
-	console.log(settings)
-		// define this here instead of tiled
 		settings.image = 'wheelie_right';
 		settings.spritewidth = 64;
  
-		// call the parent constructor
 		this.parent(x, y, settings);
  
 		this.startX = x;
 		this.endX = x + settings.width - settings.spritewidth;
-		// size of sprite
-
-		// make him start from the right
 		this.pos.x = x + settings.width - settings.spritewidth;
 		this.walkLeft = true;
  
-		// walking & jumping speed
 		this.setVelocity(2, 6);
  
-		// make it collidable
 		this.collidable = true;
-		// make it a enemy object
 		this.type = me.game.ENEMY_OBJECT;
 		
 		this.updateColRect(8, 48, -1, 0);
-		
-		this.image = me.loader.getImage('wheelie_right');
- 
 	},
 	
 	death: function() {
@@ -333,20 +320,14 @@ var EnemyEntity = me.ObjectEntity.extend({
 		tweenDown.easing(me.Tween.Easing.Quartic.EaseIn);
 	},
  
-	// call by the engine when colliding with another object
-	// obj parameter corresponds to the other object (typically the player) touching this one
 	onCollision: function(res, obj) {
- 
-		// res.y >0 means touched by something on the bottom
-		// which mean at top position for this one
+		// if the player jumps on his head
 		if (this.alive && (res.y > 0) && obj.falling) {
 			this.death();
 		}
 	},
- 
-	// manage the enemy movement
+
 	update: function() {
-		// do nothing if not visible
 		if (!this.visible)
 			return false;
  
@@ -356,6 +337,7 @@ var EnemyEntity = me.ObjectEntity.extend({
 			} else if (!this.walkLeft && this.pos.x >= this.endX) {
 				this.walkLeft = true;
 			}
+
 			// make it walk
 			this.flipX(this.walkLeft);
 			this.vel.x += (this.walkLeft) ? -this.accel.x * me.timer.tick : this.accel.x * me.timer.tick;
@@ -363,13 +345,10 @@ var EnemyEntity = me.ObjectEntity.extend({
 		} else {
 			this.vel.x = 0;
 		}
- 		
-		// check and update movement
+
 		this.updateMovement();
- 		
-		// update animation if necessary
+
 		if (this.vel.x!=0 || this.vel.y!=0) {
-			// update object animation
 			this.parent();
 			return true;
 		}
@@ -414,11 +393,6 @@ var TitleScreen = me.ScreenObject.extend({
 		if (this.title == null) {
 			// init stuff if not yet done
 			this.title = me.loader.getImage('title_screen');
-			// this is how to use a bitmap font
-//			this.font = new me.BitmapFont('32x32_font', 32);
-			// this is how to use a real font
-//			this.font = new me.Font('Amatic SC', 32, 'black', 'middle');
-//			this.font.set('left');
 		}
  
 		// enable the keyboard
@@ -428,17 +402,11 @@ var TitleScreen = me.ScreenObject.extend({
 		// play something
 		me.audio.play('cling');
 	},
- 
-	// some callback for the tween objects
-	scrollover: function() {
-
-	},
- 
 	// update function
 	update: function() {
 		// enter pressed ?
 		if (me.input.isKeyPressed('enter')) {
-			me.state.change(me.state.PLAY);
+			me.state.change(me.state.CONNECTING);
 		}
 		return true;
 	},
@@ -461,12 +429,13 @@ var TitleScreen = me.ScreenObject.extend({
 /**
  * menu screen. pause menu
  */
-var MenuScreen = me.ScreenObject.extend({
+var ConnetingScreen = me.ScreenObject.extend({
 	// constructor
 	init: function() {
 		this.parent(true);
 		this.title = null;
 		this.font = null;
+
 	},
  
 	// reset function
@@ -474,11 +443,6 @@ var MenuScreen = me.ScreenObject.extend({
 		if (this.title == null) {
 			// init stuff if not yet done
 			this.title = me.loader.getImage('title_screen');
-			// this is how to use a bitmap font
-//			this.font = new me.BitmapFont('32x32_font', 32);
-			// this is how to use a real font
-//			this.font = new me.Font('Amatic SC', 32, 'black', 'middle');
-//			this.font.set('left');
 		}
  
 		// enable the keyboard
@@ -488,13 +452,6 @@ var MenuScreen = me.ScreenObject.extend({
 		// play something
 		me.audio.play('cling');
 	},
- 
-	// some callback for the tween objects
-	scrollover: function() {
-
-	},
- 
-	// update function
 	update: function() {
 		// enter pressed ?
 		if (me.input.isKeyPressed('enter')) {
@@ -506,11 +463,17 @@ var MenuScreen = me.ScreenObject.extend({
 	// draw function
 	draw: function(context) {
 		context.drawImage(this.title, 0, 0, jsApp.config.width, jsApp.config.height);
+		
+
+		if (!jsApp.fbres) {
+			//login();
+		}
 //		this.font.draw(context, "PRESS ENTER TO PLAY", 20, 240);
 	},
  
 	// destroy function
 	onDestroyEvent: function() {
+		console.log('CON')
 		me.input.unbindKey(me.input.KEY.ENTER);
 		me.input.unbindMouse(me.input.mouse.LEFT);
 	}
@@ -587,15 +550,15 @@ var LoadingScreen = me.ScreenObject.extend({
 		xpos += logo1_width;
 		this.logo2.draw(context, 'Button', xpos, ypos);
 		
-		ypos += this.logo1.measureText(context, "cluck").height / 2;
+		ypos += this.logo1.measureText(context, 'Cluck').height / 2;
 
 		// display a progressive loading bar
 		var progress = Math.floor(this.loadPercent * me.video.getWidth());
 
 		// draw the progress bar
-		context.strokeStyle = "silver";
+		context.strokeStyle = 'silver';
 		context.strokeRect(0, ypos, me.video.getWidth(), 6);
-		context.fillStyle = "#f21622";
+		context.fillStyle = '#f21622';
 		context.fillRect(2, ypos + 2, progress - 4, 2);
 	}
 });
