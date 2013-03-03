@@ -136,23 +136,23 @@
 				display: none;
 			}
 		}
-@media screen and (device-width:320px) and (orientation:portrait) {
-    .need-rotate {
-    	display: block;
-    }
-    #jsapp {
-    	display: none;
-    }
-}
-
-@media screen and (device-width:320px) and (orientation:landscape) {
-    .need-rotate {
-    	display: none;
-    }
-    #jsapp {
-    	display: block;
-    }
-}
+		@media screen and (device-width:320px) and (orientation:portrait) {
+		    .need-rotate {
+		    	display: block;
+		    }
+		    #jsapp {
+		    	display: none;
+		    }
+		}
+		
+		@media screen and (device-width:320px) and (orientation:landscape) {
+		    .need-rotate {
+		    	display: none;
+		    }
+		    #jsapp {
+		    	display: block;
+		    }
+		}
 	</style>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 	<script type="application/x-javascript">addEventListener('touchstart',function(){}); addEventListener('load', function(event) {setTimeout(scrollTo, 80, 0, 1);}, false);</script>
@@ -191,25 +191,7 @@
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-  
-  function login() {
-    FB.login(function(response) {
-        if (response.authResponse) {
-            // connected
-            testAPI();
-        } else {
-            // cancelled
-        }
-    });
-}
 
-function testAPI() {
-    console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', function(response) {
-        console.log('Good to see you, ' + response.name + '.');
-    });
-}
-  
   
   	window.fbAsyncInit = function() {
 		FB.init({
@@ -219,22 +201,18 @@ function testAPI() {
 			xfbml: true,
 			oauth: true
 		});
-		
-FB.getLoginStatus(function(response) {
-  if (response.status === 'connected') {
-    // connected
-    jsApp.fbres = response;
-  } else if (response.status === 'not_authorized') {
-    // not_authorized
-//    login();
-  } else {
-    // not_logged_in
-//    login();
-  }
- });
+		FB.getLoginStatus(function(response) {
+			if (response.status === 'connected') {
+				jsApp.auth.id = response.authResponse.userID;
+			} else if (response.status === 'not_authorized') {
+				jsApp.auth.id = null;
+			} else {
+				jsApp.auth.id = null;
+			}
+		});
 	};
 
-(function(d){
+   (function(d){
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
      if (d.getElementById(id)) {return;}
      js = d.createElement('script'); js.id = id; js.async = true;

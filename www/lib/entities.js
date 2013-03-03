@@ -370,7 +370,6 @@ var ScoreObject = me.HUD_Item.extend({
 	},
 
 	draw: function(context, x, y) {
-		console.log(this.value);
 		this.font.draw(context, this.value, this.pos.x + x, this.pos.y + y);
 	}
  
@@ -427,57 +426,35 @@ var TitleScreen = me.ScreenObject.extend({
 
 
 /**
- * menu screen. pause menu
+ * facebook connect screen
  */
 var ConnetingScreen = me.ScreenObject.extend({
-	// constructor
 	init: function() {
 		this.parent(true);
-		this.title = null;
+		this.title = me.loader.getImage('auth-connecting');
 		this.font = null;
+	},
+	onResetEvent: function() {
+		var self = this;
+
+		if (this.title == null) {
+			this.title = me.loader.getImage('auth-connecting');
+		}
+		
+		jsApp.user(function() {
+			me.state.change(me.state.PLAY);
+		}, function() {
+			if (confirm('there was an error connecting facebook. try again?')) {
+				me.state.change(me.state.CONNECTING);
+			} else {
+				me.state.change(me.state.MENU);
+			}
+		});
 
 	},
- 
-	// reset function
-	onResetEvent: function() {
-		if (this.title == null) {
-			// init stuff if not yet done
-			this.title = me.loader.getImage('title_screen');
-		}
- 
-		// enable the keyboard
-		me.input.bindKey(me.input.KEY.ENTER, 'enter', true);
-		me.input.bindMouse(me.input.mouse.LEFT, me.input.KEY.ENTER);
- 
-		// play something
-		me.audio.play('cling');
-	},
-	update: function() {
-		// enter pressed ?
-		if (me.input.isKeyPressed('enter')) {
-			me.state.change(me.state.PLAY);
-		}
-		return true;
-	},
- 
-	// draw function
 	draw: function(context) {
 		context.drawImage(this.title, 0, 0, jsApp.config.width, jsApp.config.height);
-		
-
-		if (!jsApp.fbres) {
-			//login();
-		}
-//		this.font.draw(context, "PRESS ENTER TO PLAY", 20, 240);
-	},
- 
-	// destroy function
-	onDestroyEvent: function() {
-		console.log('CON')
-		me.input.unbindKey(me.input.KEY.ENTER);
-		me.input.unbindMouse(me.input.mouse.LEFT);
 	}
- 
 });
 
 

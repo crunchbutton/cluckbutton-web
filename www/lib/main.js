@@ -65,6 +65,16 @@ var g_resources = [
 		src: "data/bg/bg.png"
 	},
 	{
+		name: "auth-error",
+		type: "image",
+		src: "data/bg/auth-error.png"
+	},
+	{
+		name: "auth-connecting",
+		type: "image",
+		src: "data/bg/auth-connecting.png"
+	},
+	{
 		name: "control-dpad",
 		type: "image",
 		src: "data/img/control-dpad.png"
@@ -133,6 +143,7 @@ var jsApp = {
 		width: 1136/2,
 		height: 640/2
 	},
+	auth: {},
 	onload: function() {
 		if (!me.video.init('jsapp', this.config.width, this.config.height, false, 1.0)) {
 			alert('Sorry but your browser does not support html 5 canvas. You will not be able to play CluckButton. Sorry!');
@@ -151,6 +162,8 @@ var jsApp = {
 	loaded: function() {
 
 		// states and transitions
+		me.state.CONNECTING = me.state.USER + 1;
+
 		me.state.set(me.state.MENU, new TitleScreen());
 		me.state.set(me.state.PLAY, new PlayScreen());
 		me.state.set(me.state.CONNECTING, new ConnetingScreen());
@@ -171,6 +184,36 @@ var jsApp = {
 	 
 		// display main menu
 		me.state.change(me.state.MENU);
+	},
+	user: function(success, error) {
+		// return the user if we already have it
+		if (jsApp.auth.name) {
+			success(jsApp.auth);
+			return;
+		}
+
+		// get the user details	
+		var complete = function() {
+			FB.api('/me', function(response) {
+				jsApp.auth = response;
+				success(jsApp.auth);
+			});
+		}
+
+		// log us in if we dont have an auth id
+		if (!jsApp.auth.id) {
+			FB.login(function(response) {
+				if (response.authResponse) {
+					// logged in
+					jsApp.auth.id = response.authResponse.userID;
+					complete();
+				} else {
+					error();
+				}
+			});
+		} else {
+			complete();
+		}
 	}
 };
 
