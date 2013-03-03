@@ -151,7 +151,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 
 			// air jumps
 			if ((this.jumping || this.falling) && this.jumps < this.maxJumps)  {
-				//jump = true;
+				jump = true;
 
 			// land jumps
 			} else if (!this.jumping && !this.falling)  {
