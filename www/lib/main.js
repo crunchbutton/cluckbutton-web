@@ -54,6 +54,16 @@ var g_resources = [
 		type: "image",
 		src: "data/bg/clouds_large.png"
 	}, 
+	{
+		name: "bg",
+		type: "image",
+		src: "data/bg/bg.png"
+	},
+	{
+		name: "control-dpad",
+		type: "image",
+		src: "data/img/control-dpad.png"
+	},
 	// the spinning coin spritesheet
 	{
 		name: "spinning_coin_gold",
@@ -94,6 +104,7 @@ var g_resources = [
 		src: "data/audio/",
 		channel: 1
 	}
+
 ];
 
 var g = null;
@@ -105,10 +116,11 @@ var jsApp = {
 	},
 	onload: function() {
 		if (!me.video.init('jsapp', this.config.width, this.config.height, false, 1.0)) {
-			alert("Sorry but your browser does not support html 5 canvas.");
+			alert('Sorry but your browser does not support html 5 canvas. You will not be able to play CluckButton. Sorry!');
 			return;
 		}
 		
+		// prepare resources and init app
 		me.loadingScreen = new LoadingScreen();
 		me.audio.init('mp3,ogg');
 		me.loader.onload = this.loaded.bind(this);
@@ -117,55 +129,30 @@ var jsApp = {
 		me.debug.renderHitBox = DEBUG;
 		me.game.DEATH_OBJECT = 'death_object';
 	},
-
-	/* ---
-		callback when everything is loaded
-
-		--- */
 	loaded: function() {
-		// set the "Play/Ingame" Screen Object
+
+		// states and transitions
 		me.state.set(me.state.MENU, new TitleScreen());
-
-		// set the "Play/Ingame" Screen Object
 		me.state.set(me.state.PLAY, new PlayScreen());
+		me.state.set(me.state.PAUSE, new MenuScreen());
+		me.state.transition('fade', '#eaf7fd', 250);
 
-		// set a global fading transition for the screen
-		me.state.transition("fade", "#eaf7fd", 250);
+		// object pool
+		me.entityPool.add('mainPlayer', PlayerEntity);
+		me.entityPool.add('CoinEntity', CoinEntity);
+		me.entityPool.add('EnemyEntity', EnemyEntity);
+		me.entityPool.add('DeathEntity', DeathEntity);
 	 
-		// add our player entity in the entity pool
-		me.entityPool.add("mainPlayer", PlayerEntity);
-		me.entityPool.add("CoinEntity", CoinEntity);
-		me.entityPool.add("EnemyEntity", EnemyEntity);
-		me.entityPool.add("DeathEntity", DeathEntity);
-		me.entityPool.add("enemy", EnemyEntity, true);
-		
-		console.log(this.z)
-		/*
-		var enemy = me.entityPool.newInstanceOf('enemy', 927, 257, {
-			width: 318,
-			z: 8
-		});
-		var en = new EnemyEntity(927, 257, {
-			width: 318,
-			z: 8
-		});
-		me.game.add(enemy);
-		me.game.add(en);
-		*/
-		
-//		me.game.sort();
-	 
-		// enable the keyboard
+		// bind inputs
 		me.input.bindKey(me.input.KEY.LEFT, 'left');
 		me.input.bindKey(me.input.KEY.RIGHT, 'right');
 		me.input.bindKey(me.input.KEY.SPACE, 'jump', true);
 		me.input.bindKey(me.input.KEY.X, 'debug', true);
 		me.input.bindKey(me.input.KEY.Z, 'run');
 	 
-		// display the menu title
+		// display main menu
 		me.state.change(me.state.MENU);
 	}
-
 };
 
 
@@ -174,16 +161,20 @@ var PlayScreen = me.ScreenObject.extend({
 		me.audio.playTrack('jump-and-run');
 		me.levelDirector.loadLevel('area01');
 
-		me.game.addHUD(0, 50, 200, 60);
-		me.game.HUD.addItem('score', new ScoreObject(0, 50));
+		me.input.bindKey(me.input.KEY.ENTER, 'menu', true);
+		
+		me.game.add((new ControlsDpad(100,100)), 100);
+
+		me.game.addHUD(0, 0, 200, 60);
+		me.game.HUD.addItem('score', new ScoreObject(50, 0));
 
 		me.game.sort();
+		
 	},
 	onDestroyEvent: function() {
 		me.game.disableHUD();
 		me.audio.stopTrack();
 	}
- 
 });
 
 window.onReady(function() {

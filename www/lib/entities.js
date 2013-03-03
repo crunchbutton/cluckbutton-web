@@ -1,3 +1,51 @@
+var myButton = me.GUI_Object.extend({	
+	init:function(x, y) {
+		settings = {}
+		settings.image = 'red_run';
+		settings.spritewidth = 100;
+		settings.spriteheight = 50;
+		this.parent(x, y, settings);
+	},	
+	onClick:function() {
+		me.state.resume();
+		me.audio.resumeTrack();
+		me.game.remove(this);
+		return true;
+	}
+});
+
+var ControlsDpad = me.GUI_Object.extend({	
+	init:function(x, y) {
+		settings = {}
+		settings.image = 'control-dpad';
+		settings.spritewidth = 84;
+		settings.spriteheight = 84;
+		this.parent(x, y, settings);
+		
+		// add event bindings
+		var dpad = new me.Rect((new me.Vector2d(10, 10)), 500, 500);
+		me.input.registerMouseEvent('mousedown', dpad, this.onMouseDown.bind(this));
+		me.input.registerMouseEvent('mouseup', dpad, this.onMouseUp.bind(this));
+		
+	},
+	onMouseDown: function() {
+		me.input.triggerKeyEvent(me.input.KEY.RIGHT, true);
+	},
+	onMouseUp: function() {
+		me.input.triggerKeyEvent(me.input.KEY.RIGHT, false);
+	},
+	onClick:function() {
+		for (var x in me.input.touches) {
+			if (x >= 2) {
+				alert(me.input.touches[x].id)
+				return true;
+			}
+		}
+//		me.input.triggerKeyEvent(me.input.KEY.RIGHT, false);
+		return true;
+	}
+});
+
 
 /**
  * player
@@ -48,6 +96,20 @@ var PlayerEntity = me.ObjectEntity.extend({
 		}
 	},
 	update: function() {
+
+		if (me.input.isKeyPressed('menu')) {
+			me.game.add((new myButton(10,10)), 100);
+			me.game.sort();
+			setTimeout(function() {
+				me.state.pause();
+				me.audio.pauseTrack();
+			
+			}, 100);
+//			me.state.change(me.state.PAUSE);
+
+			console.log('pause')
+//			return;
+		}
 
 		// @todo: use easing math for frozen levels
 		if (me.input.isKeyPressed('left')) {
@@ -246,6 +308,8 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.flicker(45);
 		this.alive = false;
 		this.collidable = false;
+		
+		me.game.HUD.updateItemValue('score', 250);
 
 		tweenUp = new me.Tween(this.pos).to({y: this.pos.y-40}, 200).onComplete(function() {
 			tweenDown.start();
@@ -348,12 +412,11 @@ var TitleScreen = me.ScreenObject.extend({
 		}
  
 		// enable the keyboard
-		me.input.bindKey(me.input.KEY.ENTER, "enter", true);
+		me.input.bindKey(me.input.KEY.ENTER, 'enter', true);
 		me.input.bindMouse(me.input.mouse.LEFT, me.input.KEY.ENTER);
  
 		// play something
-		me.audio.play("cling");
- 
+		me.audio.play('cling');
 	},
  
 	// some callback for the tween objects
@@ -379,6 +442,67 @@ var TitleScreen = me.ScreenObject.extend({
 	// destroy function
 	onDestroyEvent: function() {
 		me.input.unbindKey(me.input.KEY.ENTER);
+		me.input.unbindMouse(me.input.mouse.LEFT);
+	}
+ 
+});
+
+
+/**
+ * menu screen. pause menu
+ */
+var MenuScreen = me.ScreenObject.extend({
+	// constructor
+	init: function() {
+		this.parent(true);
+		this.title = null;
+		this.font = null;
+	},
+ 
+	// reset function
+	onResetEvent: function() {
+		if (this.title == null) {
+			// init stuff if not yet done
+			this.title = me.loader.getImage('title_screen');
+			// this is how to use a bitmap font
+//			this.font = new me.BitmapFont('32x32_font', 32);
+			// this is how to use a real font
+//			this.font = new me.Font('Amatic SC', 32, 'black', 'middle');
+//			this.font.set('left');
+		}
+ 
+		// enable the keyboard
+		me.input.bindKey(me.input.KEY.ENTER, 'enter', true);
+		me.input.bindMouse(me.input.mouse.LEFT, me.input.KEY.ENTER);
+ 
+		// play something
+		me.audio.play('cling');
+	},
+ 
+	// some callback for the tween objects
+	scrollover: function() {
+
+	},
+ 
+	// update function
+	update: function() {
+		// enter pressed ?
+		if (me.input.isKeyPressed('enter')) {
+			me.state.change(me.state.PLAY);
+		}
+		return true;
+	},
+ 
+	// draw function
+	draw: function(context) {
+		context.drawImage(this.title, 0, 0, jsApp.config.width, jsApp.config.height);
+//		this.font.draw(context, "PRESS ENTER TO PLAY", 20, 240);
+	},
+ 
+	// destroy function
+	onDestroyEvent: function() {
+		me.input.unbindKey(me.input.KEY.ENTER);
+		me.input.unbindMouse(me.input.mouse.LEFT);
 	}
  
 });

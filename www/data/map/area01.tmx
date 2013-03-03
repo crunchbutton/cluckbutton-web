@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" width="70" height="20" tilewidth="32" tileheight="32" backgroundcolor="#eaf7fc">
+<map version="1.0" orientation="orthogonal" width="70" height="20" tilewidth="32" tileheight="32">
  <tileset firstgid="1" name="area01_level_tiles" tilewidth="32" tileheight="32">
   <image source="../tileset/area01_level_tiles.png" width="640" height="241"/>
  </tileset>
@@ -21,6 +21,12 @@
    </properties>
   </tile>
  </tileset>
+ <imagelayer name="Parallax_layer3" width="70" height="20">
+  <image source="../bg/bg.png"/>
+  <properties>
+   <property name="ratio" value="1"/>
+  </properties>
+ </imagelayer>
  <imagelayer name="Parallax_layer1" width="70" height="20">
   <image source="../bg/clouds_small.png"/>
   <properties>
