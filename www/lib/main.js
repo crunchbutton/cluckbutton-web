@@ -177,9 +177,11 @@ var PlayScreen = me.ScreenObject.extend({
 
 		me.input.bindKey(me.input.KEY.ENTER, 'menu', true);
 		
+		/* @todo: ios controls
 		me.game.add((new ControlsDpadRight(65,me.game.viewport.height-65)), 100);
 		me.game.add((new ControlsDpadLeft(20,me.game.viewport.height-65)), 100);
 		me.game.add((new ControlsButtonOne(me.game.viewport.width-65,me.game.viewport.height-65)), 100);
+		*/
 
 		me.game.addHUD(0, 0, 200, 60);
 		me.game.HUD.addItem('score', new ScoreObject(50, 0));

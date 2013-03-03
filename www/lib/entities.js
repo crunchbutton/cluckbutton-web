@@ -167,16 +167,10 @@ var PlayerEntity = me.ObjectEntity.extend({
 		
 		if (me.input.isKeyPressed('debug')) {
 			me.audio.play('jump');
-			this.en = new EnemyEntity(927, 257, {
-				width: 318,
-				z: this.z,
-				image: "wheelie_right",
-				spritewidth: 64
-			});
-			me.game.add(this.en);
+			me.game.add((new EnemyEntity(727, 257, {
+				width: 518
+			})), this.z);
 			me.game.sort();
-			
-			this.en.image = me.loader.getImage('wheelie_right');
 		}
 		
 		if (me.input.isKeyPressed('run')) {
