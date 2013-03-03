@@ -14,35 +14,51 @@ var myButton = me.GUI_Object.extend({
 	}
 });
 
-var ControlsDpad = me.GUI_Object.extend({	
+var ControlButton = me.GUI_Object.extend({
 	init:function(x, y) {
-		settings = {}
-		settings.image = 'control-dpad';
-		settings.spritewidth = 84;
-		settings.spriteheight = 84;
 		this.parent(x, y, settings);
-		
-		// add event bindings
-		var dpad = new me.Rect((new me.Vector2d(10, 10)), 500, 500);
-		me.input.registerMouseEvent('mousedown', dpad, this.onMouseDown.bind(this));
-		me.input.registerMouseEvent('mouseup', dpad, this.onMouseUp.bind(this));
-		
+		me.input.registerMouseEvent('mousedown', this, this.onMouseDown.bind(this));
+		me.input.registerMouseEvent('mouseup', this, this.onMouseUp.bind(this));
+
 	},
 	onMouseDown: function() {
-		me.input.triggerKeyEvent(me.input.KEY.RIGHT, true);
+		me.input.triggerKeyEvent(this.key, true);
 	},
 	onMouseUp: function() {
-		me.input.triggerKeyEvent(me.input.KEY.RIGHT, false);
-	},
-	onClick:function() {
-		for (var x in me.input.touches) {
-			if (x >= 2) {
-				alert(me.input.touches[x].id)
-				return true;
-			}
-		}
-//		me.input.triggerKeyEvent(me.input.KEY.RIGHT, false);
-		return true;
+		me.input.triggerKeyEvent(this.key, false);
+	}
+});
+
+var ControlsDpadLeft = ControlButton.extend({
+	init:function(x, y) {
+		settings = {}
+		settings.image = 'dpad-center-L';
+		settings.spritewidth = 45;
+		settings.spriteheight = 52;
+		this.key = me.input.KEY.LEFT;
+		this.parent(x, y, settings);
+	}
+});
+
+var ControlsDpadRight = ControlButton.extend({	
+	init:function(x, y) {
+		settings = {}
+		settings.image = 'dpad-center-R';
+		settings.spritewidth = 45;
+		settings.spriteheight = 52;
+		this.key = me.input.KEY.RIGHT;
+		this.parent(x, y, settings);
+	}
+});
+
+var ControlsButtonOne = ControlButton.extend({	
+	init:function(x, y) {
+		settings = {}
+		settings.image = 'dpad-center-R';
+		settings.spritewidth = 45;
+		settings.spriteheight = 52;
+		this.key = me.input.KEY.SPACE;
+		this.parent(x, y, settings);
 	}
 });
 
