@@ -8,20 +8,17 @@ var PlayerEntity = me.ObjectEntity.extend({
 		settings.image = 'black_jump';
 		settings.spritewidth = 64;
 
-		// call the constructor
-		this.parent(x, y, settings);
-		// set the walking & jumping speed
-		this.setVelocity(5, 15);
-		// adjust the bounding box
-//		this.updateColRect(8, 48, -1, 0);
-		// set the display to follow our position on both axis
-		me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
-		
+		this.maxJumps = 1;
+		this.jumps = 0;
+		this.walkSpeed = 5;
+		this.runSpeed = 8;
+		this.currentImage = null;
 
-		
-//		this.image = "red_run";
-//		this.spritewidth = 64;
-//		this.image = character[chosen];
+		this.parent(x, y, settings);
+		this.setVelocity(this.walkSpeed, 15);
+		this.updateColRect(13, 42, 15, 48);
+
+		me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
 	},
 	death: function() {
 		if (!this.alive) {
@@ -29,7 +26,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 		}
 		me.audio.play('cling');
 		me.game.HUD.updateItemValue('score', -500);
-		me.levelDirector.loadLevel('area01');
+		me.levelDirector.loadLevel(me.game.currentLevel.name);
 		
 		this.flicker(45);
 		this.alive = false;
@@ -39,41 +36,87 @@ var PlayerEntity = me.ObjectEntity.extend({
 			self.alive = true;
 		}, 500);
 	},
+	updateImage: function(img) {
+		var images = {
+			'jump': me.loader.getImage('black_jump'),
+			'run': me.loader.getImage('red_run'),
+			'fall': me.loader.getImage('blue_run'),
+		}
+		if (this.currentImage != img) {
+			this.currentImage = img;
+			this.image = images[img];
+		}
+	},
 	update: function() {
+
+		// @todo: use easing math for frozen levels
 		if (me.input.isKeyPressed('left')) {
-			// flip the sprite on horizontal axis
 			this.flipX(true);
-			// update the entity velocity
 			this.vel.x -= this.accel.x * me.timer.tick;
+
 		} else if (me.input.isKeyPressed('right')) {
-			// unflip the sprite
 			this.flipX(false);
-			// update the entity velocity
 			this.vel.x += this.accel.x * me.timer.tick;
+
 		} else {
 			this.vel.x = 0;
+
+		}
+		
+		if (!this.jumping && !this.falling) {
+			this.jumps = 0;
+			console.log('landed. clearing jumps')
 		}
 
 		if (me.input.isKeyPressed('jump')) {
-			if (!this.jumping && !this.falling)  {
-				// set current vel to the maximum defined value
-				// gravity will then do the rest
+			var jump = false;
+
+			// air jumps
+			if ((this.jumping || this.falling) && this.jumps < this.maxJumps)  {
+				//jump = true;
+
+			// land jumps
+			} else if (!this.jumping && !this.falling)  {
+				jump = true;
+			}
+			
+			if (jump) {
 				this.vel.y = -this.maxVel.y * me.timer.tick;
-				// set the jumping flag
-				this.jumping = true;
-				// play some audio 
 				me.audio.play('jump');
+				this.jumps++;
 			}
 		}
 		
-		// update to jumping sprite
-		if (this.jumping && !this.falling) {
-			this.image = me.loader.getImage('black_jump');
-		} else if (this.falling) {
-			this.image = me.loader.getImage('blue_run');		
-		} else {
-			this.image = me.loader.getImage('red_run');
+		if (me.input.isKeyPressed('debug')) {
+			me.audio.play('jump');
+			this.en = new EnemyEntity(927, 257, {
+				width: 318,
+				z: this.z,
+				image: "wheelie_right",
+				spritewidth: 64
+			});
+			me.game.add(this.en);
+			me.game.sort();
+			
+			this.en.image = me.loader.getImage('wheelie_right');
 		}
+		
+		if (me.input.isKeyPressed('run')) {
+			this.setVelocity(this.runSpeed, 15);
+		} else {
+			this.setVelocity(this.walkSpeed, 15);
+		}
+		
+		// update to jumping sprite
+		var img = null;
+		if (this.jumping && !this.falling) {
+			img = 'jump';
+		} else if (this.falling) {
+			img = 'fall';
+		} else {
+			img = 'run';
+		}
+		this.updateImage(img);
 
 		// check & update player movement
 		this.updateMovement();
@@ -169,6 +212,7 @@ var DeathEntity = me.InvisibleEntity.extend({
  */
 var EnemyEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
+	console.log(settings)
 		// define this here instead of tiled
 		settings.image = 'wheelie_right';
 		settings.spritewidth = 64;
@@ -179,7 +223,7 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.startX = x;
 		this.endX = x + settings.width - settings.spritewidth;
 		// size of sprite
- 
+
 		// make him start from the right
 		this.pos.x = x + settings.width - settings.spritewidth;
 		this.walkLeft = true;
@@ -193,6 +237,8 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.type = me.game.ENEMY_OBJECT;
 		
 		this.updateColRect(8, 48, -1, 0);
+		
+		this.image = me.loader.getImage('wheelie_right');
  
 	},
 	

@@ -137,11 +137,30 @@ var jsApp = {
 		me.entityPool.add("CoinEntity", CoinEntity);
 		me.entityPool.add("EnemyEntity", EnemyEntity);
 		me.entityPool.add("DeathEntity", DeathEntity);
+		me.entityPool.add("enemy", EnemyEntity, true);
+		
+		console.log(this.z)
+		/*
+		var enemy = me.entityPool.newInstanceOf('enemy', 927, 257, {
+			width: 318,
+			z: 8
+		});
+		var en = new EnemyEntity(927, 257, {
+			width: 318,
+			z: 8
+		});
+		me.game.add(enemy);
+		me.game.add(en);
+		*/
+		
+//		me.game.sort();
 	 
 		// enable the keyboard
-		me.input.bindKey(me.input.KEY.LEFT, "left");
-		me.input.bindKey(me.input.KEY.RIGHT, "right");
-		me.input.bindKey(me.input.KEY.SPACE, "jump", true);
+		me.input.bindKey(me.input.KEY.LEFT, 'left');
+		me.input.bindKey(me.input.KEY.RIGHT, 'right');
+		me.input.bindKey(me.input.KEY.SPACE, 'jump', true);
+		me.input.bindKey(me.input.KEY.X, 'debug', true);
+		me.input.bindKey(me.input.KEY.Z, 'run');
 	 
 		// display the menu title
 		me.state.change(me.state.MENU);
@@ -153,24 +172,15 @@ var jsApp = {
 var PlayScreen = me.ScreenObject.extend({
 	onResetEvent: function() {
 		me.audio.playTrack('jump-and-run');
+		me.levelDirector.loadLevel('area01');
 
-		// load a level
-		me.levelDirector.loadLevel("area01");
- 
-		// add a default HUD to the game mngr
-		me.game.addHUD(0, 430, 640, 60);
- 
-		// add a new HUD item
-		me.game.HUD.addItem('score', new ScoreObject(320, 10));
- 
-		// make sure everyhting is in the right order
+		me.game.addHUD(0, 50, 200, 60);
+		me.game.HUD.addItem('score', new ScoreObject(0, 50));
+
 		me.game.sort();
- 
 	},
 	onDestroyEvent: function() {
-		// remove the HUD
 		me.game.disableHUD();
-		
 		me.audio.stopTrack();
 	}
  
