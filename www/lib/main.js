@@ -7,127 +7,111 @@ var DEBUG = true;
 
 var g_resources = [
 	{
-		name: "area01_level_tiles",
-		type: "image",
-		src: "data/tileset/area01_level_tiles.png"
+		name: 'area01_level_tiles',
+		type: 'image',
+		src: 'data/tileset/area01_level_tiles.png'
 	},
 	{
-		name: "metatiles32x32",
-		type: "image",
-		src: "data/tileset/metatiles32x32.png"
-	}, 
-	// our level
-	{
-		name: "area01",
-		type: "tmx",
-		src: "data/map/area01.tmx"
+		name: 'metatiles32x32',
+		type: 'image',
+		src: 'data/tileset/metatiles32x32.png'
 	}, 
 	{
-		name: "area02",
-		type: "tmx",
-		src: "data/map/area02.tmx"
-	}, 
-	// the main player spritesheet
-	{
-		name: "red_run",
-		type: "image",
-		src: "data/img/red_run.png"
-	},
-	{
-		name: "blue_run",
-		type: "image",
-		src: "data/img/blue_run.png"
-	},
-	{
-		name: "black_jump",
-		type: "image",
-		src: "data/img/black_jump.png"
-	},
-	{
-		name: "title_screen",
-		type: "image",
-		src: "data/bg/title.jpg"
-	},
-	// the parallax background
-	{
-		name: "clouds_small",
-		type: "image",
-		src: "data/bg/clouds_small.png"
-	},
-	{
-		name: "clouds_large",
-		type: "image",
-		src: "data/bg/clouds_large.png"
+		name: 'area01',
+		type: 'tmx',
+		src: 'data/map/area01.tmx'
 	}, 
 	{
-		name: "bg",
-		type: "image",
-		src: "data/bg/bg.png"
-	},
-	{
-		name: "auth-error",
-		type: "image",
-		src: "data/bg/auth-error.png"
-	},
-	{
-		name: "auth-connecting",
-		type: "image",
-		src: "data/bg/auth-connecting.png"
-	},
-	{
-		name: "control-dpad",
-		type: "image",
-		src: "data/img/control-dpad.png"
-	},
-	// the spinning coin spritesheet
-	{
-		name: "spinning_coin_gold",
-		type: "image",
-		src: "data/img/spinning_coin_gold.png"
+		name: 'area02',
+		type: 'tmx',
+		src: 'data/map/area02.tmx'
 	}, 
-	// our enemty entity
 	{
-		name: "wheelie_right",
-		type: "image",
-		src: "data/img/wheelie_right.png"
-	},
-	// game controls
-	{
-		name: "dpad-center-R",
-		type: "image",
-		src: "data/img/dpad-center-R.png"
+		name: 'red_run',
+		type: 'image',
+		src: 'data/img/red_run.png'
 	},
 	{
-		name: "dpad-center-L",
-		type: "image",
-		src: "data/img/dpad-center-L.png"
+		name: 'title_screen',
+		type: 'image',
+		src: 'data/bg/title.jpg'
+	},
+	{
+		name: 'hills1',
+		type: 'image',
+		src: 'data/bg/hills1.png'
+	},
+	{
+		name: 'clouds_small',
+		type: 'image',
+		src: 'data/bg/clouds_small.png'
+	},
+	{
+		name: 'clouds_large',
+		type: 'image',
+		src: 'data/bg/clouds_large.png'
+	},
+	{
+		name: 'auth-error',
+		type: 'image',
+		src: 'data/bg/auth-error.png'
+	},
+	{
+		name: 'auth-connecting',
+		type: 'image',
+		src: 'data/bg/auth-connecting.png'
+	},
+	{
+		name: 'control-dpad',
+		type: 'image',
+		src: 'data/img/control-dpad.png'
+	},
+	{
+		name: 'spinning_coin_gold',
+		type: 'image',
+		src: 'data/img/spinning_coin_gold.png'
+	}, 
+	{
+		name: 'elephant',
+		type: 'image',
+		src: 'data/img/elephant.png'
+	},
+	{
+		name: 'dpad-center-R',
+		type: 'image',
+		src: 'data/img/dpad-center-R.png'
+	},
+	{
+		name: 'dpad-center-L',
+		type: 'image',
+		src: 'data/img/dpad-center-L.png'
 	},
 	// game font
 	{
-		name: "32x32_font",
-		type: "image",
-		src: "data/img/32x32_font.png"
+		name: '32x32_font',
+		type: 'image',
+		src: 'data/img/32x32_font.png'
 	}, 
 	// audio resources
 	{
-		name: "cling",
-		type: "audio",
-		src: "data/audio/",
+		name: 'cling',
+		type: 'audio',
+		src: 'data/audio/',
 		channel: 2
 	}, {
-		name: "stomp",
-		type: "audio",
-		src: "data/audio/",
+		name: 'stomp',
+		type: 'audio',
+		src: 'data/audio/',
 		channel: 1
 	}, {
-		name: "jump",
-		type: "audio",
-		src: "data/audio/",
+		name: 'jump',
+		type: 'audio',
+		src: 'data/audio/',
 		channel: 1
 	}, {
-		name: "jump-and-run",
-		type: "audio",
-		src: "data/audio/",
+		name: 'jump-and-run',
+		type: 'audio',
+		src: 'data/audio/',
 		channel: 1
 	}
 

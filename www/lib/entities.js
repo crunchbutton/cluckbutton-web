@@ -84,6 +84,7 @@ var ControlsButtonOne = ControlButton.extend({
 var PlayerEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
 		g = this;
+		console.log(settings)
 		settings.image = 'red_run';
 		settings.spritewidth = 64;
 		settings.spriteheight = 64;
@@ -167,9 +168,9 @@ var PlayerEntity = me.ObjectEntity.extend({
 		}
 		
 		if (me.input.isKeyPressed('debug')) {
-			this.image = me.loader.getImage('blue_run');
+//			this.image = me.loader.getImage('blue_run');
 			me.audio.play('jump');
-			me.game.add((new EnemyEntity(727, 257, {
+			me.game.add((new EnemyEntity(this.pos.x - 200, this.pos.y - 100, {
 				width: 518
 			})), this.z);
 			me.game.sort();
@@ -286,7 +287,7 @@ var DeathEntity = me.InvisibleEntity.extend({
  */
 var EnemyEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
-		settings.image = 'wheelie_right';
+		settings.image = 'elephant';
 		settings.spritewidth = 64;
  
 		this.parent(x, y, settings);
@@ -301,7 +302,10 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.collidable = true;
 		this.type = me.game.ENEMY_OBJECT;
 		
-		this.updateColRect(8, 48, -1, 0);
+		this.updateColRect(8, 53, 28, 34);
+		
+		this.addAnimation('walk', [0,1]);
+		this.setCurrentAnimation('walk');
 	},
 	
 	death: function() {
