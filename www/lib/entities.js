@@ -1,3 +1,18 @@
+var Levels = {
+	area01: {
+		gravity: .98,
+		friction: {x: 0, y: 0},
+		maxJumps: 2,
+		airJump: true
+	},
+	water01: {
+		gravity: .5,
+		friction: {x: .4, y: .4},
+		maxJumps: null,
+		airJump: true
+	}
+};
+
 var myButton = me.GUI_Object.extend({	
 	init:function(x, y) {
 		settings = {}
@@ -69,10 +84,11 @@ var ControlsButtonOne = ControlButton.extend({
 var PlayerEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
 		g = this;
-		settings.image = 'black_jump';
+		settings.image = 'red_run';
 		settings.spritewidth = 64;
+		settings.spriteheight = 64;
 
-		this.maxJumps = 1;
+		this.maxJumps = me.level().maxJumps;
 		this.jumps = 0;
 		this.walkSpeed = 5;
 		this.runSpeed = 8;
@@ -81,6 +97,16 @@ var PlayerEntity = me.ObjectEntity.extend({
 		this.parent(x, y, settings);
 		this.setVelocity(this.walkSpeed, 15);
 		this.updateColRect(13, 42, 15, 48);
+		
+		this.gravity = me.level().gravity;
+		if (me.level().friction) {
+			this.setFriction(me.level().friction.x, me.level().friction.y);
+		}
+		
+		var sf = 8;
+		this.addAnimation('run', [0,1,2,3,4,5,6,7]);
+		this.addAnimation('jump', [0+sf]);
+		this.addAnimation('fall', [0+(sf*2)]);
 
 		me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
 	},
@@ -100,17 +126,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 			self.alive = true;
 		}, 500);
 	},
-	updateImage: function(img) {
-		var images = {
-			'jump': me.loader.getImage('black_jump'),
-			'run': me.loader.getImage('red_run'),
-			'fall': me.loader.getImage('blue_run'),
-		}
-		if (this.currentImage != img) {
-			this.currentImage = img;
-			this.image = images[img];
-		}
-	},
 	update: function() {
 
 		if (me.input.isKeyPressed('menu')) {
@@ -119,7 +134,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 			setTimeout(function() {
 				me.state.pause();
 				me.audio.pauseTrack();
-			
 			}, 100);
 //			me.state.change(me.state.PAUSE);
 
@@ -138,34 +152,22 @@ var PlayerEntity = me.ObjectEntity.extend({
 
 		} else {
 			this.vel.x = 0;
-
 		}
 		
-		if (!this.jumping && !this.falling) {
+		if (!this.jumping && !this.falling && this.jumps) {
 			this.jumps = 0;
-			console.log('landed. clearing jumps')
 		}
 
 		if (me.input.isKeyPressed('jump')) {
-			var jump = false;
-
-			// air jumps
-			if ((this.jumping || this.falling) && this.jumps < this.maxJumps)  {
-				jump = true;
-
-			// land jumps
-			} else if (!this.jumping && !this.falling)  {
-				jump = true;
-			}
-			
-			if (jump) {
-				this.vel.y = -this.maxVel.y * me.timer.tick;
+			if (this.jumps < this.maxJumps)  {
+				this.forceJump();
 				me.audio.play('jump');
 				this.jumps++;
 			}
 		}
 		
 		if (me.input.isKeyPressed('debug')) {
+			this.image = me.loader.getImage('blue_run');
 			me.audio.play('jump');
 			me.game.add((new EnemyEntity(727, 257, {
 				width: 518
@@ -188,7 +190,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 		} else {
 			img = 'run';
 		}
-		this.updateImage(img);
+		this.setCurrentAnimation(img);
 
 		// check & update player movement
 		this.updateMovement();
@@ -212,6 +214,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 					me.audio.play("stomp");
 				} else {
 					// let's flicker in case we touched an enemy
+					//me.game.viewport.shake(10, 30, me.game.viewport.AXIS.BOTH);
 					this.flicker(45);
 				}
 			} else if (res.obj.type == me.game.DEATH_OBJECT) {

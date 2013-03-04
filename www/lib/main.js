@@ -158,6 +158,10 @@ var jsApp = {
 		me.state.change(me.state.LOADING);		
 		me.debug.renderHitBox = DEBUG;
 		me.game.DEATH_OBJECT = 'death_object';
+		
+		me.level = function() {
+			return me.game.currentLevel.name ? Levels[me.game.currentLevel.name] : false;
+		};		
 	},
 	loaded: function() {
 
