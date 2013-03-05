@@ -1,0 +1,34 @@
+{
+	"name": "melonJS",
+	"version": "0.9.7",
+	"description": "MelonJS Game Engine",
+
+	"homepage": "http://www.melonjs.org/",
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/obiot/melonJS"
+		}
+	],
+
+	"licenses": [
+		{
+			"type": "MIT License",
+			"url": "https://github.com/obiot/melonJS/blob/master/MIT-LICENSE"
+		}
+	],
+
+	"author": {
+		"name": "Olivier Biot",
+		"email": "contact@melonjs.org"
+	},
+
+	"engines": {
+		"node": ">0.4 <0.6"
+	},
+
+	"dependencies": {
+		"coffee-script": ">1 <2",
+		"uglify-js": "1.1.0"
+	}
+}
