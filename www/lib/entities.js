@@ -3,19 +3,22 @@ var Levels = {
 		gravity: .98,
 		friction: {x: 0, y: 0},
 		maxJumps: 2,
-		airJump: true
+		airJump: true,
+		maxTime: 60
 	},
 	area02: {
 		gravity: .98,
 		friction: {x: 0, y: 0},
 		maxJumps: 2,
-		airJump: true
+		airJump: true,
+		maxTime: 60
 	},
 	water01: {
 		gravity: .5,
 		friction: {x: .4, y: .4},
 		maxJumps: null,
-		airJump: true
+		airJump: true,
+		maxTime: 60
 	}
 };
 
@@ -218,7 +221,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 
 		if (res && this.alive) {
 			if (res.obj.type == me.game.ENEMY_OBJECT) {
-				if ((res.y > 0) && ! this.jumping) {
+				if ((res.y > 0) && !this.jumping && this.falling) {
 					this.forceJump();
 					this.jumps = 1;
 					me.audio.play('stomp');
@@ -373,7 +376,7 @@ var ScoreObject = me.HUD_Item.extend({
 		// call the parent constructor
 		this.parent(x, y);
 		// create a font
-		this.font = new me.BitmapFont('32x32_font', 32);
+		this.font = new me.BitmapFont('16x16_font', 16);
 	},
 
 	draw: function(context, x, y) {
@@ -403,6 +406,7 @@ var TitleScreen = me.ScreenObject.extend({
  
 		// enable the keyboard
 		me.input.bindKey(me.input.KEY.ENTER, 'enter', true);
+		me.input.bindKey(me.input.KEY.SPACE, 'enter', true);
 		me.input.bindMouse(me.input.mouse.LEFT, me.input.KEY.ENTER);
  
 		// play something
@@ -426,6 +430,7 @@ var TitleScreen = me.ScreenObject.extend({
 	// destroy function
 	onDestroyEvent: function() {
 		me.input.unbindKey(me.input.KEY.ENTER);
+		me.input.unbindKey(me.input.KEY.SPACE);
 		me.input.unbindMouse(me.input.mouse.LEFT);
 	}
  

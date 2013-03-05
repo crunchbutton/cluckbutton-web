@@ -93,9 +93,9 @@ var g_resources = [
 	},
 	// game font
 	{
-		name: '32x32_font',
+		name: '16x16_font',
 		type: 'image',
-		src: 'data/img/32x32_font.png'
+		src: 'data/img/16x16_font.png'
 	}, 
 	// audio resources
 	{
@@ -168,15 +168,6 @@ var jsApp = {
 		me.entityPool.add('EnemyEntity', EnemyEntity);
 		me.entityPool.add('DeathEntity', DeathEntity);
 	 
-		// bind inputs
-		me.input.bindKey(me.input.KEY.LEFT, 'left');
-		me.input.bindKey(me.input.KEY.RIGHT, 'right');
-		me.input.bindKey(me.input.KEY.SPACE, 'jump', true);
-		me.input.bindKey(me.input.KEY.X, 'debug', true);
-		me.input.bindKey(me.input.KEY.Z, 'run');
-		
-		me.input.bindKey(me.input.KEY.NUM1, 'level1', true);
-		me.input.bindKey(me.input.KEY.NUM2, 'level2', true);
 	 
 		// display main menu
 		me.state.change(me.state.MENU);
@@ -222,7 +213,23 @@ var PlayScreen = me.ScreenObject.extend({
 		me.audio.playTrack('jump-and-run');
 		me.levelDirector.loadLevel('area01');
 
+		// bind inputs
 		me.input.bindKey(me.input.KEY.ENTER, 'menu', true);
+		me.input.bindKey(me.input.KEY.LEFT, 'left');
+		me.input.bindKey(me.input.KEY.RIGHT, 'right');
+		me.input.bindKey(me.input.KEY.UP, 'jump', true);
+		me.input.bindKey(me.input.KEY.SPACE, 'jump', true);
+
+		me.input.bindKey(me.input.KEY.A, 'left');
+		me.input.bindKey(me.input.KEY.D, 'right');
+		me.input.bindKey(me.input.KEY.W, 'jump', true);
+		
+		me.input.bindKey(me.input.KEY.X, 'debug', true);
+		me.input.bindKey(me.input.KEY.Z, 'run');
+		
+		me.input.bindKey(me.input.KEY.NUM1, 'level1', true);
+		me.input.bindKey(me.input.KEY.NUM2, 'level2', true);
+
 		
 
 		/* @todo: ios controls
@@ -239,9 +246,22 @@ var PlayScreen = me.ScreenObject.extend({
 	onDestroyEvent: function() {
 		me.game.disableHUD();
 		me.audio.stopTrack();
-	},
-	onPauseEvent: function() {
-		console.log('OMG');
+		
+		me.input.unbindKey(me.input.KEY.ENTER);
+		me.input.bindKey(me.input.KEY.LEFT);
+		me.input.bindKey(me.input.KEY.RIGHT);
+		me.input.bindKey(me.input.KEY.UP);
+		me.input.bindKey(me.input.KEY.SPACE);
+
+		me.input.bindKey(me.input.KEY.A);
+		me.input.bindKey(me.input.KEY.D);
+		me.input.bindKey(me.input.KEY.W);
+		
+		me.input.bindKey(me.input.KEY.X);
+		me.input.bindKey(me.input.KEY.Z);
+		
+		me.input.bindKey(me.input.KEY.NUM1);
+		me.input.bindKey(me.input.KEY.NUM2);
 	}
 });
 
