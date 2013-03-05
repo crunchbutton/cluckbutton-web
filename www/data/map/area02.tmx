@@ -74,33 +74,13 @@
     <property name="test" value="asd"/>
    </properties>
   </object>
-  <object name="CoinEntity" x="79" y="1354" width="28" height="29">
-   <properties>
-    <property name="image" value="cupcake"/>
-    <property name="spritewidth" value="32"/>
-   </properties>
-  </object>
-  <object name="CoinEntity" x="145" y="505" width="28" height="29">
-   <properties>
-    <property name="image" value="cupcake"/>
-    <property name="spritewidth" value="32"/>
-   </properties>
-  </object>
+  <object name="CoinEntity" x="79" y="1354" width="28" height="29"/>
+  <object name="CoinEntity" x="145" y="505" width="28" height="29"/>
  </objectgroup>
  <objectgroup name="EnemyEntities" width="20" height="100">
   <object name="EnemyEntity" x="5" y="1729" width="626" height="42"/>
-  <object name="CoinEntity" x="95" y="2661" width="28" height="29">
-   <properties>
-    <property name="image" value="cupcake"/>
-    <property name="spritewidth" value="32"/>
-   </properties>
-  </object>
-  <object name="CoinEntity" x="483" y="1957" width="28" height="29">
-   <properties>
-    <property name="image" value="cupcake"/>
-    <property name="spritewidth" value="32"/>
-   </properties>
-  </object>
+  <object name="CoinEntity" x="95" y="2661" width="28" height="29"/>
+  <object name="CoinEntity" x="483" y="1957" width="28" height="29"/>
   <object name="EnemyEntity" x="495" y="201" width="136" height="26"/>
   <object name="me.LevelEntity" x="236" y="103" width="38" height="42">
    <properties>

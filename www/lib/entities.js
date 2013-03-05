@@ -257,9 +257,10 @@ var PlayerEntity = me.ObjectEntity.extend({
  */
 var CoinEntity = me.CollectableEntity.extend({
 	init: function(x, y, settings) {
-//		settings.image = me.loader.getImage('cupcake');
-//		settings.spritewidth = '32';
-console.log(settings)
+		settings.image = 'cupcake';
+		settings.height = 32;
+		settings.width = 32;
+		settings.spritewidth = 32;
 		this.parent(x, y, settings);
 	},
  
