@@ -167,6 +167,7 @@ var me = me || {};
 		 * @memberOf me.sys
 		 */
 		pauseOnBlur : true,
+		resumeOnFocus : true,
 
 		/**
 		 * Specify the rendering method for layers <br>
@@ -2273,7 +2274,7 @@ var me = me || {};
 			// set play action on gaining focus
 			$.addEventListener("focus", function() {
 				// only in case we are not loading stuff
-				if (me.sys.pauseOnBlur && (_state != obj.LOADING)) {
+				if (me.sys.resumeOnFocus && (_state != obj.LOADING)) {
 					obj.resume(true);
 
 					// force repaint

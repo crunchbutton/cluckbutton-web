@@ -5,6 +5,7 @@
 
 // @todo add @2x detection
 
+
 var g_resources = [
 	{
 		name: 'area01_level_tiles',
@@ -126,7 +127,7 @@ var g_resources = [
 	}
 ];
 
-var g = null;
+var g = a = null;
 
 /**
  * the game
@@ -154,15 +155,37 @@ var jsApp = {
 		
 		me.level = function() {
 			return me.game.currentLevel.name ? Levels[me.game.currentLevel.name] : false;
-		};		
+		};
+
+		// pause & menu
+		me.event.subscribe(me.event.KEYDOWN, function(e) {
+			if (me.input.isKeyPressed('menu')) {
+				if (me.state.isRunning()) {
+					me.state.onPause();
+				} else {
+					me.state.resume(true);
+					me.state.onResume();
+				}
+			}
+		});
+		
+		me.state.onPause = function() {
+			// stop game timer
+			Menu.show();
+		};
+		
+		me.state.onResume = function() {
+			// resume game timer
+			Menu.hide();
+		};
 	},
 	loaded: function() {
 
 		// states and transitions
 		me.state.CONNECTING = me.state.USER + 1;
-
+		a = new PlayScreen();
 		me.state.set(me.state.MENU, new TitleScreen());
-		me.state.set(me.state.PLAY, new PlayScreen());
+		me.state.set(me.state.PLAY, a);
 		me.state.set(me.state.CONNECTING, new ConnetingScreen());
 		me.state.transition('fade', '#eaf7fd', 250);
 
@@ -247,6 +270,8 @@ var PlayScreen = me.ScreenObject.extend({
 		me.game.HUD.addItem('time', new ScoreObject(me.game.viewport.width-10, 20));
 
 		me.game.sort();
+		
+		me.sys.resumeOnFocus = true;
 	},
 	onDestroyEvent: function() {
 		me.game.disableHUD();
@@ -274,3 +299,40 @@ var PlayScreen = me.ScreenObject.extend({
 window.onReady(function() {
 	jsApp.onload();
 });
+
+
+// menu object.
+var Menu = {
+	menu: null,
+	trickShow: false,
+	show: function(trick) {
+		// this can be triggered if it is already paused
+		if (!this.trickShow) {
+			this.trickShow = true;
+			if (!Menu.menu) {
+				Menu.menu = new PauseMenu(10,10);
+			} else {
+				Menu.menu.visible = true;
+			}
+			me.game.add(Menu.menu, 100);
+			me.game.sort();
+			me.state.resume(false);
+
+			// this is a timeout hack to prevent the screen from not drawing the menu
+			setTimeout(function() {
+				me.state.pause(true);
+				me.event.publish(me.state.STATE_PAUSE);
+				me.state.onPause();
+			}, 20);
+		} else {
+			this.trickShow = false;
+		}
+
+
+	},
+	hide: function() {
+		if (Menu.menu) {
+			me.game.remove(Menu.menu);
+		}
+	}
+};

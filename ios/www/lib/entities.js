@@ -22,14 +22,14 @@ var Levels = {
 	}
 };
 
-var myButton = me.GUI_Object.extend({	
+var PauseMenu = me.GUI_Object.extend({	
 	init:function(x, y) {
 		settings = {}
 		settings.image = 'red-run';
 		settings.spritewidth = 100;
 		settings.spriteheight = 50;
 		this.parent(x, y, settings);
-	},	
+	},
 	onClick:function() {
 		me.state.resume();
 		me.audio.resumeTrack();
@@ -43,7 +43,6 @@ var ControlButton = me.GUI_Object.extend({
 		this.parent(x, y, settings);
 		me.input.registerMouseEvent('mousedown', this, this.onMouseDown.bind(this));
 		me.input.registerMouseEvent('mouseup', this, this.onMouseUp.bind(this));
-
 	},
 	onMouseDown: function() {
 		me.input.triggerKeyEvent(this.key, true);
@@ -137,18 +136,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 	},
 	update: function() {
 
-		if (me.input.isKeyPressed('menu')) {
-			me.game.add((new myButton(10,10)), 100);
-			me.game.sort();
-			setTimeout(function() {
-				me.state.pause();
-				me.audio.pauseTrack();
-			}, 100);
-//			me.state.change(me.state.PAUSE);
-
-			console.log('pause')
-//			return;
-		}
 
 		// @todo: use easing math for frozen levels
 		if (me.input.isKeyPressed('left')) {
@@ -540,3 +527,9 @@ var LoadingScreen = me.ScreenObject.extend({
 		context.fillRect(2, ypos + 2, progress - 4, 2);
 	}
 });
+
+
+
+
+//me.event.publish(me.event.KEYDOWN, [ action ]);
+//			me.event.publish(me.event.LEVEL_LOADED, [level.name]);
