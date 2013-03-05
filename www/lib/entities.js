@@ -180,8 +180,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 			me.levelDirector.loadLevel('area02');
 		}
 		
-		
-		
 		if (me.input.isKeyPressed('debug')) {
 //			this.image = me.loader.getImage('blue_run');
 			me.audio.play('jump');
@@ -221,13 +219,9 @@ var PlayerEntity = me.ObjectEntity.extend({
 		if (res && this.alive) {
 			if (res.obj.type == me.game.ENEMY_OBJECT) {
 				if ((res.y > 0) && ! this.jumping) {
-					// bounce (force jump)
-					this.falling = false;
-					this.vel.y = -this.maxVel.y * me.timer.tick;
-					// set the jumping flag
-					this.jumping = true;
-					// play some audio
-					me.audio.play("stomp");
+					this.forceJump();
+					this.jumps = 1;
+					me.audio.play('stomp');
 				} else {
 					// let's flicker in case we touched an enemy
 					//me.game.viewport.shake(10, 30, me.game.viewport.AXIS.BOTH);

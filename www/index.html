@@ -167,6 +167,7 @@
 
 
 <script type="text/javascript">
+	var DEBUG = location.hostname == 'cluckbutton.com' ? false : true;
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-916699-23']);
@@ -180,7 +181,7 @@
 
   	window.fbAsyncInit = function() {
 		FB.init({
-			appId: '338554376246354',
+			appId: DEBUG ? '338554376246354' : '158646220959447',
 			status: true,
 			cookie: true,
 			xfbml: true,
