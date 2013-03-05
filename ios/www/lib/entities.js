@@ -34,7 +34,17 @@ var PauseMenu = me.GUI_Object.extend({
 		me.state.resume();
 		me.audio.resumeTrack();
 		me.game.remove(this);
+		console.log('clicked')
 		return true;
+	},
+	hide: function() {
+		this.visible = false;
+	},
+	show: function() {
+		this.visible = true;
+	},
+	onDestroyEvent: function() {
+	
 	}
 });
 

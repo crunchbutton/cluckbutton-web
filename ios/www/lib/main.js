@@ -169,6 +169,16 @@ var jsApp = {
 			}
 		});
 		
+		var first = true;
+		me.event.subscribe(me.event.LEVEL_LOADED,function(level){
+			if (!first) {
+				me.audio.play('next-level');
+			} else {
+				first = false;
+			}
+
+		});
+		
 		me.state.onPause = function() {
 			// stop game timer
 			Menu.show();
@@ -311,10 +321,10 @@ var Menu = {
 			this.trickShow = true;
 			if (!Menu.menu) {
 				Menu.menu = new PauseMenu(10,10);
-			} else {
-				Menu.menu.visible = true;
+				
 			}
 			me.game.add(Menu.menu, 100);
+			Menu.menu.show();
 			me.game.sort();
 			me.state.resume(false);
 
@@ -332,7 +342,8 @@ var Menu = {
 	},
 	hide: function() {
 		if (Menu.menu) {
-			me.game.remove(Menu.menu);
+			//me.game.remove(Menu.menu);
+			Menu.menu.hide();
 		}
 	}
 };
