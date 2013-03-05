@@ -27,9 +27,9 @@ var g_resources = [
 		src: 'data/map/area02.tmx'
 	}, 
 	{
-		name: 'red_run',
+		name: 'red-run',
 		type: 'image',
-		src: 'data/img/red_run.png'
+		src: 'data/img/red-run.png'
 	},
 	{
 		name: 'title_screen',
@@ -40,6 +40,11 @@ var g_resources = [
 		name: 'hills1',
 		type: 'image',
 		src: 'data/bg/hills1.png'
+	},
+		{
+		name: 'hill2',
+		type: 'image',
+		src: 'data/bg/hill2.png'
 	},
 	{
 		name: 'clouds_small',
@@ -67,9 +72,9 @@ var g_resources = [
 		src: 'data/img/control-dpad.png'
 	},
 	{
-		name: 'spinning_coin_gold',
+		name: 'cupcake',
 		type: 'image',
-		src: 'data/img/spinning_coin_gold.png'
+		src: 'data/img/cupcake.png'
 	}, 
 	{
 		name: 'elephant',
@@ -169,6 +174,9 @@ var jsApp = {
 		me.input.bindKey(me.input.KEY.SPACE, 'jump', true);
 		me.input.bindKey(me.input.KEY.X, 'debug', true);
 		me.input.bindKey(me.input.KEY.Z, 'run');
+		
+		me.input.bindKey(me.input.KEY.NUM1, 'level1', true);
+		me.input.bindKey(me.input.KEY.NUM2, 'level2', true);
 	 
 		// display main menu
 		me.state.change(me.state.MENU);
@@ -215,6 +223,7 @@ var PlayScreen = me.ScreenObject.extend({
 		me.levelDirector.loadLevel('area01');
 
 		me.input.bindKey(me.input.KEY.ENTER, 'menu', true);
+		
 
 		/* @todo: ios controls
 		me.game.add((new ControlsDpadRight(65,me.game.viewport.height-65)), 100);

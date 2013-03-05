@@ -5,6 +5,12 @@ var Levels = {
 		maxJumps: 2,
 		airJump: true
 	},
+	area02: {
+		gravity: .98,
+		friction: {x: 0, y: 0},
+		maxJumps: 2,
+		airJump: true
+	},
 	water01: {
 		gravity: .5,
 		friction: {x: .4, y: .4},
@@ -16,7 +22,7 @@ var Levels = {
 var myButton = me.GUI_Object.extend({	
 	init:function(x, y) {
 		settings = {}
-		settings.image = 'red_run';
+		settings.image = 'red-run';
 		settings.spritewidth = 100;
 		settings.spriteheight = 50;
 		this.parent(x, y, settings);
@@ -84,8 +90,7 @@ var ControlsButtonOne = ControlButton.extend({
 var PlayerEntity = me.ObjectEntity.extend({
 	init: function(x, y, settings) {
 		g = this;
-		console.log(settings)
-		settings.image = 'red_run';
+		settings.image = 'red-run';
 		settings.spritewidth = 64;
 		settings.spriteheight = 64;
 
@@ -105,7 +110,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 		}
 		
 		var sf = 8;
-		this.addAnimation('run', [0,1,2,3,4,5,6,7]);
+		this.addAnimation('run', [0,1]);
 		this.addAnimation('jump', [0+sf]);
 		this.addAnimation('fall', [0+(sf*2)]);
 
@@ -166,6 +171,16 @@ var PlayerEntity = me.ObjectEntity.extend({
 				this.jumps++;
 			}
 		}
+		
+		if (me.input.isKeyPressed('level1')) {
+			me.levelDirector.loadLevel('area01');
+		}
+		
+		if (me.input.isKeyPressed('level2')) {
+			me.levelDirector.loadLevel('area02');
+		}
+		
+		
 		
 		if (me.input.isKeyPressed('debug')) {
 //			this.image = me.loader.getImage('blue_run');
@@ -241,29 +256,19 @@ var PlayerEntity = me.ObjectEntity.extend({
  * collectable coin - gives points
  */
 var CoinEntity = me.CollectableEntity.extend({
-	// extending the init function is not mandatory
-	// unless you need to add some extra initialization
 	init: function(x, y, settings) {
-		// call the parent constructor
+//		settings.image = me.loader.getImage('cupcake');
+//		settings.spritewidth = '32';
+console.log(settings)
 		this.parent(x, y, settings);
 	},
  
-	onCollision : function ()
-	{
-		// do something when collected
-	 
-		// play a "coin collected" sound
-		me.audio.play("cling");
-	 
-		// give some score
-		me.game.HUD.updateItemValue("score", 250);
-	 
-		// make sure it cannot be collected "again"
+	onCollision: function () {
+		me.audio.play('cling');
+		me.game.HUD.updateItemValue('score', 250);
 		this.collidable = false;
-		// remove it
 		me.game.remove(this);
 	}
- 
 });
 
 
@@ -472,7 +477,6 @@ var LoadingScreen = me.ScreenObject.extend({
 	init : function() {
 		this.parent(true);
 		this.logo1 = new me.Font('Amatic SC', 32, 'black', 'middle');
-		this.logo2 = new me.Font('Amatic SC', 32, 'black', 'middle');
 
 		// flag to know if we need to refresh the display
 		this.invalidate = false;
@@ -520,26 +524,16 @@ var LoadingScreen = me.ScreenObject.extend({
 	},
 
 	draw : function(context) {
-		
-		// measure the logo size
-		var logo1_width = this.logo1.measureText(context, "Cluck").width;
-		var xpos = (me.video.getWidth() - logo1_width - this.logo2.measureText(context, "Button").width) / 2;
+		var text = 'CluckButton';
+		var logo1_width = this.logo1.measureText(context, text).width;
+		var xpos = (me.video.getWidth() - logo1_width) / 2;
 		var ypos = me.video.getHeight() / 2;
-			
-		// clear surface
-		me.video.clearSurface(context, "#eaf7fd");
-		
-		// draw the melonJS logo
-		this.logo1.draw(context, 'Cluck', xpos , ypos);
-		xpos += logo1_width;
-		this.logo2.draw(context, 'Button', xpos, ypos);
-		
-		ypos += this.logo1.measureText(context, 'Cluck').height / 2;
 
-		// display a progressive loading bar
+		me.video.clearSurface(context, '#eaf7fd');
+		this.logo1.draw(context, text, xpos , ypos);
+		ypos += this.logo1.measureText(context, text).height / 2;
+
 		var progress = Math.floor(this.loadPercent * me.video.getWidth());
-
-		// draw the progress bar
 		context.strokeStyle = 'silver';
 		context.strokeRect(0, ypos, me.video.getWidth(), 6);
 		context.fillStyle = '#f21622';
