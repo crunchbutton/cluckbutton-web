@@ -26,7 +26,12 @@ var g_resources = [
 		name: 'area02',
 		type: 'tmx',
 		src: 'data/map/area02.tmx'
-	}, 
+	},
+	{
+		name: 'area03',
+		type: 'tmx',
+		src: 'data/map/area03.tmx'
+	},
 	{
 		name: 'red-run',
 		type: 'image',
@@ -58,14 +63,9 @@ var g_resources = [
 		src: 'data/bg/clouds_large.png'
 	},
 	{
-		name: 'auth-error',
+		name: 'blank-screen',
 		type: 'image',
-		src: 'data/bg/auth-error.png'
-	},
-	{
-		name: 'auth-connecting',
-		type: 'image',
-		src: 'data/bg/auth-connecting.png'
+		src: 'data/bg/blank.png'
 	},
 	{
 		name: 'control-dpad',
@@ -139,10 +139,30 @@ var jsApp = {
 	},
 	auth: {},
 	onload: function() {
+		var self = this;
+
 		if (!me.video.init('jsapp', this.config.width, this.config.height, false, 1.0)) {
 			alert('Sorry but your browser does not support html 5 canvas. You will not be able to play CluckButton. Sorry!');
 			return;
 		}
+		
+		// show the hijack screen to prevent popup blocking
+		$('#hijack').css({
+			height:this.config.height,
+			width: this.config.width
+		}).show();
+		$('#hijack .message').html('');
+		
+		self.processing = false;
+		
+		$('#hijack').click(function() {
+			if (!me.loaded || self.processing) {
+				return;
+			}
+			self.processing = true;
+			me.input.triggerKeyEvent(me.input.KEY.ENTER, true);
+			self.processAuth();
+		});
 
 		// prepare resources and init app
 		me.loadingScreen = new LoadingScreen();
@@ -151,7 +171,16 @@ var jsApp = {
 		me.loader.preload(g_resources);
 		me.state.change(me.state.LOADING);		
 		me.debug.renderHitBox = DEBUG;
+
 		me.game.DEATH_OBJECT = 'death_object';
+		me.game.WATER_OBJECT = 'water_object';
+		
+		me.sys.resumeOnFocus = false;
+		me.sys.pauseOnBlur = false;
+
+		me.loaded = false;
+		//me.sys.interpolation = true;
+		//me.sys.useNativeAnimFrame = true;
 		
 		me.level = function() {
 			return me.game.currentLevel.name ? Levels[me.game.currentLevel.name] : false;
@@ -176,11 +205,11 @@ var jsApp = {
 			} else {
 				first = false;
 			}
-
 		});
 		
 		me.state.onPause = function() {
 			// stop game timer
+			console.log('paused')
 			Menu.show();
 		};
 		
@@ -189,14 +218,23 @@ var jsApp = {
 			Menu.hide();
 		};
 	},
+	doLoginEvent: function() {
+	
+	},
 	loaded: function() {
 
 		// states and transitions
 		me.state.CONNECTING = me.state.USER + 1;
-		a = new PlayScreen();
+
 		me.state.set(me.state.MENU, new TitleScreen());
-		me.state.set(me.state.PLAY, a);
+		me.state.setTransition(me.state.MENU, false);
+
+		me.state.set(me.state.PLAY, new PlayScreen());
+		me.state.setTransition(me.state.PLAY, true);
+
 		me.state.set(me.state.CONNECTING, new ConnetingScreen());
+		me.state.setTransition(me.state.CONNECTING, false);
+
 		me.state.transition('fade', '#eaf7fd', 250);
 
 		// object pool
@@ -204,10 +242,40 @@ var jsApp = {
 		me.entityPool.add('CoinEntity', CoinEntity);
 		me.entityPool.add('EnemyEntity', EnemyEntity);
 		me.entityPool.add('DeathEntity', DeathEntity);
-	 
+		me.entityPool.add('WaterEntity', WaterEntity);
 	 
 		// display main menu
 		me.state.change(me.state.MENU);
+	},
+	processAuth: function() {
+		$('#hijack .message').html('loging you in with facebook...');
+		var self = this;
+
+		this.user(function() {
+			self.processing = false;
+			$('#hijack').hide();
+			$('#hijack .message').html('');
+
+			setTimeout(function() {
+				me.state.change(me.state.PLAY);
+				me.state.resume(true);	
+			}, 100);
+
+		}, function() {
+			self.processing = false;
+			$('#hijack .message').html('there was an error connecting to facebook.<br /><br />click here to try again.');
+		});
+	},
+	userLogin: function() {
+		FB.login(function(response) {
+			if (response.authResponse) {
+				// logged in
+				jsApp.auth.id = response.authResponse.userID;
+				this.userComplete();
+			} else {
+				this.userError();
+			}
+		});
 	},
 	user: function(success, error) {
 		// return the user if we already have it
@@ -266,6 +334,7 @@ var PlayScreen = me.ScreenObject.extend({
 		
 		me.input.bindKey(me.input.KEY.NUM1, 'level1', true);
 		me.input.bindKey(me.input.KEY.NUM2, 'level2', true);
+		me.input.bindKey(me.input.KEY.NUM3, 'level3', true);
 
 		
 
@@ -282,6 +351,7 @@ var PlayScreen = me.ScreenObject.extend({
 		me.game.sort();
 		
 		me.sys.resumeOnFocus = true;
+		me.sys.pauseOnBlur = true;
 	},
 	onDestroyEvent: function() {
 		me.game.disableHUD();
@@ -302,6 +372,7 @@ var PlayScreen = me.ScreenObject.extend({
 		
 		me.input.bindKey(me.input.KEY.NUM1);
 		me.input.bindKey(me.input.KEY.NUM2);
+		me.input.bindKey(me.input.KEY.NUM3);
 	}
 });
 

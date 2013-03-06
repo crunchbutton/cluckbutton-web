@@ -89,7 +89,8 @@
 			font-size: 75px;
 		}
 		h2 {
-			font-size: 35px;
+			margin-top: 90px;
+			font-size: 30px;
 		}
 		h3 {
 			font-size: 25px;
@@ -99,7 +100,7 @@
 			margin-top: 50px;
 		}
 		.content {
-			width: auto;
+			width: 568px;
 			text-align: center;
 			margin: 0 auto;
 			margin-top: 30px;
@@ -108,6 +109,12 @@
 		.need-rotate {
 			margin-top: 80px;
 			display: none;
+		}
+		
+		#hijack {
+			position: absolute;
+			width: auto;
+			cursor: pointer;
 		}
 
 		@media only screen 
@@ -126,7 +133,7 @@
 		    .need-rotate {
 		    	display: block;
 		    }
-		    #jsapp {
+		    #jsapp, #hijack {
 		    	display: none;
 		    }
 		}
@@ -145,6 +152,9 @@
 </head>
 <body>
 <div class="content">
+	<div id="hijack">
+		<h2 class="message">TEST</h2>
+	</div>
 	<div id="jsapp">
 		<script type="text/javascript" src="lib/melonJS-0.9.6.js"></script>
 		<script type="text/javascript" src="lib/entities.js"></script>

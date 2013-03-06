@@ -4,9 +4,18 @@ var Levels = {
 		friction: {x: 0, y: 0},
 		maxJumps: 2,
 		airJump: true,
-		maxTime: 60
+		maxTime: 60,
+		next: 'area02'
 	},
 	area02: {
+		gravity: .98,
+		friction: {x: 0, y: 0},
+		maxJumps: 2,
+		airJump: true,
+		maxTime: 60,
+		next: 'area03'
+	},
+	area03: {
 		gravity: .98,
 		friction: {x: 0, y: 0},
 		maxJumps: 2,
@@ -23,14 +32,14 @@ var Levels = {
 };
 
 var PauseMenu = me.GUI_Object.extend({	
-	init:function(x, y) {
+	init: function(x, y) {
 		settings = {}
 		settings.image = 'red-run';
 		settings.spritewidth = 100;
 		settings.spriteheight = 50;
 		this.parent(x, y, settings);
 	},
-	onClick:function() {
+	onClick: function() {
 		me.state.resume();
 		me.audio.resumeTrack();
 		me.game.remove(this);
@@ -49,7 +58,7 @@ var PauseMenu = me.GUI_Object.extend({
 });
 
 var ControlButton = me.GUI_Object.extend({
-	init:function(x, y) {
+	init: function(x, y) {
 		this.parent(x, y, settings);
 		me.input.registerMouseEvent('mousedown', this, this.onMouseDown.bind(this));
 		me.input.registerMouseEvent('mouseup', this, this.onMouseUp.bind(this));
@@ -110,16 +119,18 @@ var PlayerEntity = me.ObjectEntity.extend({
 		this.jumps = 0;
 		this.walkSpeed = 5;
 		this.runSpeed = 8;
+		this.swimSpeed = 2;
+		this.swimJump = 10;
 		this.currentImage = null;
+		this.inWater = false;
+		this.facing = 'right';
 
 		this.parent(x, y, settings);
 		this.setVelocity(this.walkSpeed, 15);
 		this.updateColRect(13, 42, 15, 48);
 		
 		this.gravity = me.level().gravity;
-		if (me.level().friction) {
-			this.setFriction(me.level().friction.x, me.level().friction.y);
-		}
+		this.setFriction(me.level().friction.x, me.level().friction.y);
 		
 		var sf = 8;
 		this.addAnimation('run', [0,1]);
@@ -145,27 +156,53 @@ var PlayerEntity = me.ObjectEntity.extend({
 		}, 500);
 	},
 	update: function() {
+	
+	
+		// check for collision
+		var res = me.game.collide(this);
+		this.checkWater(res);
 
-
-		// @todo: use easing math for frozen levels
 		if (me.input.isKeyPressed('left')) {
-			this.flipX(true);
-			this.vel.x -= this.accel.x * me.timer.tick;
+			this.doWalk(true);
+//			this.facing = true;
+//			this.startSlide = true;
+//			this.slideTween.stop();
 
 		} else if (me.input.isKeyPressed('right')) {
-			this.flipX(false);
-			this.vel.x += this.accel.x * me.timer.tick;
+			this.doWalk(false);
+//			this.facing = false;
+//			this.startSlide = true;
+//			this.slideTween.stop();
 
 		} else {
 			this.vel.x = 0;
+			
+			/*
+			// @todo: use momentum math for frozen levels
+			this.slideTween = new me.Tween(this.pos).to({x: this.facing ? this.pos.x-40 : this.pos.x+40}, 1000).onComplete(function() {
+				this.startSlide = false;
+			});
+			this.slideTween.easing(me.Tween.Easing.Quartic.EaseOut);
+			
+			if (this.startSlide) {
+				this.startSlide = false;
+				this.slideTween.start();
+
+			}
+			*/
+
 		}
 		
 		if (!this.jumping && !this.falling && this.jumps) {
 			this.jumps = 0;
 		}
+		
+		if ((this.jumping || this.falling) && this.inWater) {
+			console.log(this.vel.y)
+		}
 
 		if (me.input.isKeyPressed('jump')) {
-			if (this.jumps < this.maxJumps)  {
+			if (this.maxJumps === null || this.jumps < this.maxJumps)  {
 				this.forceJump();
 				me.audio.play('jump');
 				this.jumps++;
@@ -178,6 +215,10 @@ var PlayerEntity = me.ObjectEntity.extend({
 		
 		if (me.input.isKeyPressed('level2')) {
 			me.levelDirector.loadLevel('area02');
+		}
+		
+		if (me.input.isKeyPressed('level3')) {
+			me.levelDirector.loadLevel('area03');
 		}
 		
 		if (me.input.isKeyPressed('debug')) {
@@ -209,8 +250,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 		// check & update player movement
 		this.updateMovement();
 	 
-		// check for collision
-		var res = me.game.collide(this);
 		
 		if (me.game.currentLevel.realheight - this.pos.y - this.hHeight < 0) {
 			this.death();
@@ -223,15 +262,13 @@ var PlayerEntity = me.ObjectEntity.extend({
 					this.jumps = 1;
 					me.audio.play('stomp');
 				} else {
-					// let's flicker in case we touched an enemy
-					//me.game.viewport.shake(10, 30, me.game.viewport.AXIS.BOTH);
 					this.flicker(45);
 				}
 			} else if (res.obj.type == me.game.DEATH_OBJECT) {
 				this.death();
 			}
 		}
-	 
+
 		// update animation if necessary
 		if (this.vel.x!=0 || this.vel.y!=0) {
 			// update object animation
@@ -242,6 +279,32 @@ var PlayerEntity = me.ObjectEntity.extend({
 		// any update (e.g. position, animation)
 		return false;   	
 	 
+	},
+	checkWater: function(res) {
+		this.inWater = false;
+		if (res && this.alive) {
+			if (res.obj.type == me.game.WATER_OBJECT) {
+				this.inWater = true;
+			}
+		}
+
+		if (this.inWater) {
+			console.log('in water')
+			this.gravity = .5;
+			if (me.level().friction) {
+				this.setFriction(.4, .4);
+			}
+			this.jumps = 0;
+			this.setVelocity(this.swimSpeed, this.swimJump);
+		} else {
+			this.inWater = false;
+			// make sure friction is set to nothing
+			if (me.level().friction) {
+				this.setFriction(me.level().friction.x, me.level().friction.y);
+			}
+			this.gravity = me.level().gravity;
+			this.setVelocity(this.walkSpeed, 15);
+		}
 	}
 });
 
@@ -278,6 +341,21 @@ var DeathEntity = me.InvisibleEntity.extend({
 	},
 	onCollision: function () {
 	
+	}
+});
+
+
+/**
+ * changes the friction for the player
+ */
+var WaterEntity = me.InvisibleEntity.extend({
+	init: function(x, y, settings) {
+		this.setFriction = settings.friction;
+		this.parent(x, y, settings);
+		this.type = me.game.WATER_OBJECT;
+	},
+	onCollision: function () {
+		// something?
 	}
 });
 
@@ -408,6 +486,7 @@ var TitleScreen = me.ScreenObject.extend({
  
 		// play something
 		me.audio.play('cling');
+		me.loaded = true;
 	},
 	// update function
 	update: function() {
@@ -440,26 +519,15 @@ var TitleScreen = me.ScreenObject.extend({
 var ConnetingScreen = me.ScreenObject.extend({
 	init: function() {
 		this.parent(true);
-		this.title = me.loader.getImage('auth-connecting');
+		this.title = me.loader.getImage('blank-screen');
 		this.font = null;
 	},
 	onResetEvent: function() {
-		var self = this;
+		$('#hijack').click();
 
 		if (this.title == null) {
-			this.title = me.loader.getImage('auth-connecting');
+			this.title = me.loader.getImage('blank-screen');
 		}
-		
-		jsApp.user(function() {
-			me.state.change(me.state.PLAY);
-		}, function() {
-			if (confirm('there was an error connecting facebook. try again?')) {
-				me.state.change(me.state.CONNECTING);
-			} else {
-				me.state.change(me.state.MENU);
-			}
-		});
-
 	},
 	draw: function(context) {
 		context.drawImage(this.title, 0, 0, jsApp.config.width, jsApp.config.height);
