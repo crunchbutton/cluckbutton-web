@@ -190,7 +190,6 @@ var PlayerEntity = me.ObjectEntity.extend({
 
 			}
 			*/
-
 		}
 		
 		if (!this.jumping && !this.falling && this.jumps) {
@@ -204,6 +203,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 		if (me.input.isKeyPressed('jump')) {
 			if (this.maxJumps === null || this.jumps < this.maxJumps)  {
 				this.forceJump();
+				me.stats.jumps++;
 				me.audio.play('jump');
 				this.jumps++;
 			}
@@ -249,9 +249,9 @@ var PlayerEntity = me.ObjectEntity.extend({
 
 		// check & update player movement
 		this.updateMovement();
-	 
-		
+
 		if (me.game.currentLevel.realheight - this.pos.y - this.hHeight < 0) {
+			me.stats.falls++;
 			this.death();
 		}
 
@@ -262,6 +262,7 @@ var PlayerEntity = me.ObjectEntity.extend({
 					this.jumps = 1;
 					me.audio.play('stomp');
 				} else {
+					me.stats.injury++;
 					this.flicker(45);
 				}
 			} else if (res.obj.type == me.game.DEATH_OBJECT) {
@@ -324,6 +325,8 @@ var CoinEntity = me.CollectableEntity.extend({
 	onCollision: function () {
 		me.audio.play('cling');
 		me.game.HUD.updateItemValue('score', 250);
+		me.stats.score += 250;
+		me.stats.collected++;
 		this.collidable = false;
 		me.game.remove(this);
 	}
@@ -392,6 +395,8 @@ var EnemyEntity = me.ObjectEntity.extend({
 		this.collidable = false;
 		
 		me.game.HUD.updateItemValue('score', 250);
+		me.stats.score += 250;
+		me.stats.killed++;
 
 		tweenUp = new me.Tween(this.pos).to({y: this.pos.y-40}, 200).onComplete(function() {
 			tweenDown.start();
@@ -451,9 +456,8 @@ var ScoreObject = me.HUD_Item.extend({
 		// call the parent constructor
 		this.parent(x, y);
 		// create a font
-		this.font = new me.BitmapFont('16x16_font', 16);
+		this.font = new me.BitmapFont('12x12_font', 12);
 	},
-
 	draw: function(context, x, y) {
 		this.font.draw(context, this.value, this.pos.x + x, this.pos.y + y);
 	}

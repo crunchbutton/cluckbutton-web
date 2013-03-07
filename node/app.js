@@ -1,7 +1,9 @@
 var
 	express = require('express'),
 	Sequelize = require('sequelize'),
-	FB = require('fb');
+	FB = require('fb'),
+	app = express(),
+	MySQLSessionStore = require('connect-mysql-session')(express);
 
 // database connectivity
 var sequelize = new Sequelize('cluckbutton', 'root', 'root', {
@@ -16,38 +18,49 @@ var sequelize = new Sequelize('cluckbutton', 'root', 'root', {
 		collate: 'utf8_general_ci',
 		timestamps: true
 	},
-//	sync: { force: true },
-//	syncOnAssociation: true,
 	pool: { maxConnections: 5, maxIdleTime: 30}
 });
 
-/*
-var ProjectPhone = sequelize.define('ProjectPhone', {
-	number: Sequelize.STRING
+
+
+var Session = sequelize.define('Session', {
+	token
 }, {instanceMethods: {
-	project: function(callback) {
-		Project.find({where: {id: this.ProjectId}})
-			.success(callback)
-			.error(function() {
-				callback(false);
-			});
+	byToken: function(callback) {
+		
 	}
 }});
-*/
+
+
+var Play = sequelize.define('Played', {
+	start: Sequelize.DATE,
+	end: Sequelize.DATE,
+	jumps: Sequelize.INTEGER,
+	elapsed: Sequelize.INTEGER,
+	collected: Sequelize.INTEGER,
+	killed: Sequelize.INTEGER,
+	falls: Sequelize.INTEGER,
+	injury: Sequelize.INTEGER,
+	score: Sequelize.INTEGER
+});
 
 var User = sequelize.define('User', {
 	email: Sequelize.STRING,
 	name: Sequelize.STRING,
 	token: Sequelize.STRING,
 	fbid: Sequelize.STRING
-});
+}, {instanceMethods: {
+	stats: function(callback) {
+
+	}
+}});
 
 var Level = sequelize.define('Level', {
 	name: Sequelize.STRING,
 	map: Sequelize.STRING,
 	maxScore: Sequelize.INTEGER,
 	maxJumps: Sequelize.INTEGER,
-	airJump: Sequelize.BOOL,
+	airJump: Sequelize.BOOLEAN,
 	friction_x: Sequelize.FLOAT,
 	friction_y: Sequelize.FLOAT,
 	gravity: Sequelize.FLOAT
@@ -56,33 +69,38 @@ var Level = sequelize.define('Level', {
 
 // set up associations
 Level
-	.hasMany(User)
-	.hasMany(Played);
-/*
-Played
-	.hasMany(Project)
-	.hasMany(User);
-*/
-	
+	.hasMany(Play);
+
 User
-	.hasMany(Played);
+	.hasMany(Play);
+	.hasMany(Session);
 
+Play.belongsTo(Level);
+Play.belongsTo(User);
 
-Played.belongsTo(Level);
-Played.belongsTo(User);
+Session.belongsTo(User);
 
 sequelize.sync();
 
 
 // create our server
-var app = express.createServer();
 app.use(express.bodyParser());
-app.use(passport.initialize());
+app.use(express.cookieParser());
+app.use(express.session({
+	store: new MySQLSessionStore('cluckbutton', 'root', 'root', {
+		sequelize: sequelize,
+		session: Session
+	}),
+	secret: 'keyboard cat'
+}));
 app.use(app.router);
 
 // home page
 app.get('/', function(req, res) {
-	res.send('nothing to see here');
+	res.writeHead(302, {
+		'Location': 'http://cluckbutton.com'
+	});
+	res.end();
 });
 
 // signup page
@@ -95,84 +113,35 @@ app.get(['/signup/:id','/signup'], function(req, res) {
 });
 
 // current user
-app.get('/api/user', function(req, res) {
-	User.find(1).success(function(user) {
-		res.send(JSON.stringify(user));
+app.get('/setup', function(req, res) {
+	FB.setAccessToken(req.query.token);
+	
+	FB.api('/me', function(response) {
+		res.send(JSON.stringify(response));
 	});
+//	User.find(1).success(function(user) {
+		
+//	});
 });
 
 // reset everthing and add test data
 app.get('/reset', function(req, res) {
 	// debug data
 	sequelize.sync({force: true}).success(function() {
-		Project.build({
-			title: 'Crunchbutton',
-			name: 'crunchbutton'
-		}).save().success(function(project) {
-			ProjectPhone.build({
-				number: '13107733622'
-			}).save().success(function(projectPhone) {
-				Agent.build({
-					name: 'Devin Text'
-				}).save().success(function(agent) {
-					AgentPhone.build({
-						number: '14152053084',
-						primary: true
-					}).save().success(function(agentPhone) {
-						User.build({
-							name: 'devin',
-							email: 'trest@arzynik.com'
-						}).save().success(function(user) {
-							Plan.build({
-								name: 'Free',
-								price: 0,
-								permalink: 'free',
-								description: 'Free plan does not include a unique number'
-							}).save().success(function(plan) {
-					
-								// add associations
-								project.addProjectPhone(projectPhone);
-								agent.addAgentPhone(agentPhone);
-								project.addAgent(agent);
-								project.addUser(user);
-								plan.addProject(project);
-							});
-						});
-					});
-				});
-			});
-		});
-		
-		
-		// other data
-		Plan.create({
-			name: 'Startup',
-			price: 10,
-			permalink: 'startup',
-			description: 'We reccomend!'
-		});
-		Plan.create({
-			name: 'Basic',
-			price: 40,
-			permalink: 'basic',
-			description: 'hi'
-		});
-		Plan.create({
-			name: 'Pro',
-			price: 100,
-			permalink: 'pro',
-			description: 'rawr'
-		});
-		
+		Level.build({
+			name: 'area01'
+		}).save();		
 	});
 
 	res.send('all reset!');
 });
 
 
-app.listen(6000);
-app.use(express.static(__dirname + '/public'));
+app.listen(3002);
+//app.use(express.static(__dirname + '/public'));
 
+
+/*
 var clients = [];
 var clearDC = function() {
 	for (x in clients) {
@@ -182,12 +151,19 @@ var clearDC = function() {
 	}
 }
 
-var io = require('socket.io').listen(6001);
+
+
+var io = require('socket.io').listen(3001);
 io.sockets.on('connection', function (socket) {
 	clients[clients.length] = socket;
+	
+	socket.emit('connected', { 
+		test: 'asd'
+	});
 
 	socket.on('message.config', function (data) {
 		// send back the config data
 		
 	});
 });
+*/

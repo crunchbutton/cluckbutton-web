@@ -1,4 +1,9 @@
+Header add Access-Control-Allow-Origin "*"
+Header add Access-Control-Allow-Headers "origin, x-requested-with, content-type"
+Header add Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
+
 allow from all
+
 
 RewriteEngine on
 Options +Followsymlinks -Indexes
@@ -8,7 +13,8 @@ ReWriteRule .* - [F]
 
 RewriteCond %{REQUEST_FILENAME}        !-f
 RewriteCond %{REQUEST_FILENAME}        !-d
-RewriteRule ^(.+)$                    index.php?__url=$1 [L,QSA]
+#RewriteRule ^(.+)$                    index.php?__url=$1 [L,QSA]
+RewriteRule ^(.*)$ http://cluckbutton.localhost:3002/$1 [P]
 
 <FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|js|css)$">
 Header set Cache-Control "max-age=290304000, public"

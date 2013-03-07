@@ -1,3 +1,4 @@
 logs/*
 _tmp/*
 www/test/*
+node/node_modules

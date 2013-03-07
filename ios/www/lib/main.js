@@ -98,6 +98,11 @@ var g_resources = [
 		type: 'image',
 		src: 'data/img/16x16_font.png'
 	}, 
+	{
+		name: '12x12_font',
+		type: 'image',
+		src: 'data/img/12x12_font.png'
+	}, 
 	// audio resources
 	{
 		name: 'cling',
@@ -141,7 +146,7 @@ var jsApp = {
 	onload: function() {
 		var self = this;
 
-		if (!me.video.init('jsapp', this.config.width, this.config.height, false, 1.0)) {
+		if (!me.video.init('jsapp', this.config.width, this.config.height, false, 'auto')) {
 			alert('Sorry but your browser does not support html 5 canvas. You will not be able to play CluckButton. Sorry!');
 			return;
 		}
@@ -153,15 +158,29 @@ var jsApp = {
 		}).show();
 		$('#hijack .message').html('');
 		
-		self.processing = false;
+		this.user = new User();
 		
 		$('#hijack').click(function() {
-			if (!me.loaded || self.processing) {
+			if (!me.loaded || self.user.processing) {
 				return;
 			}
-			self.processing = true;
+			self.user.processing = true;
 			me.input.triggerKeyEvent(me.input.KEY.ENTER, true);
-			self.processAuth();
+
+			self.user.auth(function() {
+
+				self.gameserver = new GameServer(function() {
+
+					self.user.processing = false;
+					$('#hijack').hide();
+					$('#hijack .message').html('');
+		
+					setTimeout(function() {
+						me.state.change(me.state.PLAY);
+						me.state.resume(true);	
+					}, 100);
+				});
+			});
 		});
 
 		// prepare resources and init app
@@ -171,6 +190,7 @@ var jsApp = {
 		me.loader.preload(g_resources);
 		me.state.change(me.state.LOADING);		
 		me.debug.renderHitBox = DEBUG;
+		this.resetStats();
 
 		me.game.DEATH_OBJECT = 'death_object';
 		me.game.WATER_OBJECT = 'water_object';
@@ -197,7 +217,7 @@ var jsApp = {
 				}
 			}
 		});
-		
+
 		this.playTime = new Stopwatch(function() {
 			me.game.HUD.setItemValue('time',
 				stopwatchNumber(this.getElapsed().minutes) + ':' +
@@ -205,22 +225,23 @@ var jsApp = {
 				stopwatchNumber(this.getElapsed().milliseconds/10)
 			);
 		}, 100);
-		
+
 		var first = true;
 		me.event.subscribe(me.event.LEVEL_LOADED,function(level) {
-
-			self.playTime.restart();
-
 			if (!first) {
+				// record level stats
+				self.gameserver.endLevel(function() {
+					self.resetStats()
+				});
+				
 				me.audio.play('next-level');
 			} else {
 				first = false;
 			}
+			self.playTime.restart();
 		});
 		
 		me.state.onPause = function() {
-			console.log('Game paused');
-
 			// stop game timer
 			if (!first) {
 				self.playTime.stop();
@@ -229,13 +250,24 @@ var jsApp = {
 		};
 		
 		me.state.onResume = function() {
-			console.log('Game resumed');
-
 			// resume game timer
 			if (!first) {
 				self.playTime.start();
 			}
 			Menu.hide();
+		};
+	},
+	resetStats: function() {
+		me.stats = {
+			jumps: 0,
+			startTime: 0,
+			endTime: 0,
+			elapsed: 0,
+			collected: 0,
+			killed: 0,
+			falls: 0,
+			injury: 0,
+			score: 0
 		};
 	},
 	loaded: function() {
@@ -263,66 +295,6 @@ var jsApp = {
 	 
 		// display main menu
 		me.state.change(me.state.MENU);
-	},
-	processAuth: function() {
-		$('#hijack .message').html('loging you in with facebook...');
-		var self = this;
-
-		this.user(function() {
-			self.processing = false;
-			$('#hijack').hide();
-			$('#hijack .message').html('');
-
-			setTimeout(function() {
-				me.state.change(me.state.PLAY);
-				me.state.resume(true);	
-			}, 100);
-
-		}, function() {
-			self.processing = false;
-			$('#hijack .message').html('there was an error connecting to facebook.<br /><br />click here to try again.');
-		});
-	},
-	userLogin: function() {
-		FB.login(function(response) {
-			if (response.authResponse) {
-				// logged in
-				jsApp.auth.id = response.authResponse.userID;
-				this.userComplete();
-			} else {
-				this.userError();
-			}
-		});
-	},
-	user: function(success, error) {
-		// return the user if we already have it
-		if (jsApp.auth.name) {
-			success(jsApp.auth);
-			return;
-		}
-
-		// get the user details	
-		var complete = function() {
-			FB.api('/me', function(response) {
-				jsApp.auth = response;
-				success(jsApp.auth);
-			});
-		}
-
-		// log us in if we dont have an auth id
-		if (!jsApp.auth.id) {
-			FB.login(function(response) {
-				if (response.authResponse) {
-					// logged in
-					jsApp.auth.id = response.authResponse.userID;
-					complete();
-				} else {
-					error();
-				}
-			});
-		} else {
-			complete();
-		}
 	}
 };
 
@@ -552,7 +524,136 @@ function stopwatchNumber(number) {
 	number = number.toFixed(0);
 	width -= number.toString().length;
 	if (width > 0) {
-		return new Array( width + (/\./.test( number ) ? 2 : 1) ).join( '0' ) + number;
+		return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
 	}
 	return number + '';
 }
+
+/*
+var Socket = function(complete) {
+	var socket = io.connect('http://cluckbutton.localhost:6001');
+	socket.on('connected', function (message) {
+		if (complete) {
+			complete(message);
+		}
+	});
+	socket.on('message.user', function (message) {
+		console.log(message);
+		createMessage(message, 'user');
+		//socket.emit('my other event', { my: 'data' });
+	});
+	
+	socket.on('message.agent', function (message) {
+		console.log(message);
+		createMessage(message, 'agent');
+		//socket.emit('my other event', { my: 'data' });
+	});
+	
+	return socket;
+};
+*/
+
+var GameServer = function(user, conected) {
+	
+	var api = {
+		user: user
+	};
+	
+	// request a level start. must return token values
+	api.startLevel = function(level, complete) {
+		$.getJSON('/level/start', {
+			level: level,
+			
+		}, function(json) {
+			if (complete) {
+				complete(json.play);
+			}
+		});
+	};
+	
+	// publish scores, and track the level as completed
+	api.endLevel = function(play, stats, complete) {
+		stats.play = play;
+
+		$.getJSON('/level/start', stats, function(json) {
+			if (complete) {
+				complete(json.success);
+			}
+		});
+	};
+
+	// authenticate the user
+	$.getJSON('/setup', {
+		token: jsApp.auth.token
+	}, function(conected) {
+		if (conected) {
+			conected();
+		}
+	});
+
+	return api;
+
+};
+
+
+var User = function(complete) {
+
+	var api = {
+		processing : false
+	};
+
+	api.auth = function(complete) {
+		$('#hijack .message').html('logging you in with facebook...');
+
+		api.user(function() {
+			$('#hijack .message').html('connecting to server...');
+		
+			if (complete) {
+				complete();
+			}
+
+		}, function() {
+			api.processing = false;
+			$('#hijack .message').html('there was an error connecting to facebook.<br /><br />click here to try again.');
+		}, complete);
+	};
+
+	api.user = function(success, error, complete) {
+
+		// return the user if we already have it
+		if (jsApp.auth.name) {
+			success(jsApp.auth);
+			return;
+		}
+
+		// get the user details	
+		var complete = function() {
+			FB.api('/me', function(response) {
+				response.token = jsApp.auth.token;
+				jsApp.auth = response;
+				success(jsApp.auth);
+			});
+		}
+
+		// log us in if we dont have an auth id
+		if (!jsApp.auth.id) {
+			FB.login(function(response) {
+				if (response.authResponse) {
+					// logged in
+					jsApp.auth.id = response.authResponse.userID;
+					complete();
+				} else {
+					error();
+				}
+			});
+		} else {
+			complete();
+		}
+	}
+	
+	if (complete) {
+		api.auth(complete);
+	}
+
+	return api;
+};

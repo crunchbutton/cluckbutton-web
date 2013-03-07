@@ -106,11 +106,14 @@
 			margin-top: 30px;
 			padding-top: 50px;
 		}
+		#jsapp {
+			height: 320px;
+			width: 568px;
+		}
 		.need-rotate {
 			margin-top: 80px;
 			display: none;
 		}
-		
 		#hijack {
 			position: absolute;
 			width: auto;
@@ -130,12 +133,10 @@
 			}
 		}
 		@media screen and (device-width:320px) and (orientation:portrait) {
-		    .need-rotate {
-		    	display: block;
-		    }
-		    #jsapp, #hijack {
-		    	display: none;
-		    }
+			#jsapp {
+				height: 280px;
+				width: 320px;
+			}
 		}
 		
 		@media screen and (device-width:320px) and (orientation:landscape) {
@@ -147,19 +148,20 @@
 		    }
 		}
 	</style>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+	<script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="lib/socket.io.client.js"></script>
+	<script type="text/javascript" src="lib/melonJS-0.9.6.js"></script>
+	<script type="text/javascript" src="lib/entities.js"></script>
+	<script type="text/javascript" src="lib/main.js"></script>
+
 	<script type="application/x-javascript">addEventListener('touchstart',function(){}); addEventListener('load', function(event) {setTimeout(scrollTo, 80, 0, 1);}, false);</script>
 </head>
 <body>
 <div class="content">
 	<div id="hijack">
-		<h2 class="message">TEST</h2>
+		<h2 class="message"></h2>
 	</div>
-	<div id="jsapp">
-		<script type="text/javascript" src="lib/melonJS-0.9.6.js"></script>
-		<script type="text/javascript" src="lib/entities.js"></script>
-		<script type="text/javascript" src="lib/main.js"></script>
-	</div>
+	<div id="jsapp"></div>
 	<div class="need-rotate">
 		<h1>Please rotate your screen</h1>
 		<br /><br /><br /><br />
@@ -179,17 +181,17 @@
 <script type="text/javascript">
 	var DEBUG = location.hostname == 'cluckbutton.com' ? false : true;
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-916699-23']);
-  _gaq.push(['_trackPageview']);
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-916699-23']);
+	_gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
 
-  	window.fbAsyncInit = function() {
+	window.fbAsyncInit = function() {
 		FB.init({
 			appId: DEBUG ? '338554376246354' : '158646220959447',
 			status: true,
@@ -200,6 +202,7 @@
 		FB.getLoginStatus(function(response) {
 			if (response.status === 'connected') {
 				jsApp.auth.id = response.authResponse.userID;
+				jsApp.auth.token = response.authResponse.accessToken;
 			} else if (response.status === 'not_authorized') {
 				jsApp.auth.id = null;
 			} else {
@@ -208,13 +211,12 @@
 		});
 	};
 
-   (function(d){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     ref.parentNode.insertBefore(js, ref);
-   }(document));
-
+	(function(d){
+		var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+		if (d.getElementById(id)) {return;}
+		js = d.createElement('script'); js.id = id; js.async = true;
+		js.src = "//connect.facebook.net/en_US/all.js";
+		ref.parentNode.insertBefore(js, ref);
+	}(document));
 </script>
 </html>

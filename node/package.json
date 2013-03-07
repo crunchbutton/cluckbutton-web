@@ -1,0 +1,11 @@
+{
+	"name":"cluckbutton",
+	"version":"0.0.1",
+	"dependencies":{
+		"express":"",
+		"sequelize":"",
+		"socket.io":"",
+		"connect-mysql-session":"",
+		"fb":""
+	}
+}

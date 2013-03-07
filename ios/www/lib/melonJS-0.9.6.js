@@ -7855,8 +7855,9 @@ var me = me || {};
 			if (auto_scale) {
 				// get the parent container max size
 				var parent = me.video.getScreenCanvas().parentNode;
-				var max_width = parent.width || window.innerWidth;
-				var max_height = parent.height || window.innerHeight;
+
+				var max_width = jQuery(parent).width() || window.innerWidth;
+				var max_height = jQuery(parent).height() || window.innerHeight;
 				
 				if (deferResizeId) {
 					// cancel any previous pending resize
