@@ -169,7 +169,7 @@ var jsApp = {
 
 			self.user.auth(function() {
 
-				self.gameserver = new GameServer(function() {
+				self.gameserver = new GameServer(self.user, function() {
 
 					self.user.processing = false;
 					$('#hijack').hide();
@@ -583,9 +583,9 @@ var GameServer = function(user, conected) {
 	// authenticate the user
 	$.getJSON('/setup', {
 		token: jsApp.auth.token
-	}, function(conected) {
+	}, function(res) {
 		if (conected) {
-			conected();
+			conected(res);
 		}
 	});
 
