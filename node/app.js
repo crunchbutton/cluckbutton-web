@@ -24,13 +24,11 @@ var sequelize = new Sequelize('cluckbutton', 'root', 'root', {
 
 
 var Session = sequelize.define('Session', {
-	token
-}, {instanceMethods: {
-	byToken: function(callback) {
-		
-	}
-}});
-
+	sid: {type: Sequelize.STRING, unique: true, allowNull: false},
+	expires: Sequelize.INTEGER,
+	json: Sequelize.TEXT,
+	token: Sequelize.TEXT
+});
 
 var Play = sequelize.define('Played', {
 	start: Sequelize.DATE,
@@ -72,7 +70,7 @@ Level
 	.hasMany(Play);
 
 User
-	.hasMany(Play);
+	.hasMany(Play)
 	.hasMany(Session);
 
 Play.belongsTo(Level);
@@ -84,15 +82,15 @@ sequelize.sync();
 
 
 // create our server
-app.use(express.bodyParser());
 app.use(express.cookieParser());
 app.use(express.session({
-	store: new MySQLSessionStore('cluckbutton', 'root', 'root', {
+	store: new MySQLSessionStore({
 		sequelize: sequelize,
 		session: Session
 	}),
-	secret: 'keyboard cat'
+	secret: 'bacon mutation'
 }));
+app.use(express.bodyParser());
 app.use(app.router);
 
 // home page
@@ -112,8 +110,11 @@ app.get(['/signup/:id','/signup'], function(req, res) {
 	});
 });
 
-// current user
+// setup config
 app.get('/setup', function(req, res) {
+
+//	req.session.user = 'asd';
+
 	FB.setAccessToken(req.query.token);
 	
 	FB.api('/me', function(response) {

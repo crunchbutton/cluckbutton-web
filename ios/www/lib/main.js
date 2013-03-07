@@ -325,8 +325,6 @@ var PlayScreen = me.ScreenObject.extend({
 		me.input.bindKey(me.input.KEY.NUM2, 'level2', true);
 		me.input.bindKey(me.input.KEY.NUM3, 'level3', true);
 
-		
-
 		/* @todo: ios controls
 		me.game.add((new ControlsDpadRight(65,me.game.viewport.height-65)), 100);
 		me.game.add((new ControlsDpadLeft(20,me.game.viewport.height-65)), 100);
