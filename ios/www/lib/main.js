@@ -573,7 +573,7 @@ var GameServer = function(user, conected) {
 	api.endLevel = function(play, stats, complete) {
 		stats.play = play;
 
-		$.getJSON('/level/start', stats, function(json) {
+		$.getJSON('/level/end', stats, function(json) {
 			if (complete) {
 				complete(json.success);
 			}

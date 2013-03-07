@@ -105,14 +105,63 @@ app.get('/', function(req, res) {
 	res.end();
 });
 
-// signup page
-app.get(['/signup/:id','/signup'], function(req, res) {
-	res.render('signup',{
-		plan: {name: req.params[0] || 'startup'},
-		pageAccount: true,
-		page: 'tour'
-	});
+// startlevel
+app.get('/level/start', function(req, res) {
+	if (req.session.UserId) {
+		User.find(req.session.UserId).success(function(user) {
+			if (user) {
+				Level.find(req.query.level).success(function(level) {
+					if (level) {
+						Play.build({
+							UserId: user.id,
+							LevelId: req.query.level,
+							start: new Date
+						}).save().success(function(play) {
+							res.write(JSON.stringify(play));
+							res.end();
+						});
+					} else {
+						res.writeHead(404);
+						res.end();
+					}
+				});
+			} else {
+				res.writeHead(401);
+				res.end();
+			}
+		});
+	} else {
+		res.writeHead(401);
+		res.end();
+	}
 });
+
+// endlevel
+app.get('/level/end', function(req, res) {
+	if (req.session.UserId) {
+		User.find(req.session.UserId).success(function(user) {
+			if (user) {
+				Play.find(req.query.play).success(function(play) {
+					if (play) {
+						play.end = new Date;
+						play.score = req.query.score;
+						play.save();
+					} else {
+						res.writeHead(404);
+						res.end();
+					}
+				});
+			} else {
+				res.writeHead(401);
+				res.end();
+			}
+		});
+	} else {
+		res.writeHead(401);
+		res.end();
+	}
+});
+
 
 // setup config
 app.get('/setup', function(req, res) {
