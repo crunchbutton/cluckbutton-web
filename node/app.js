@@ -43,12 +43,16 @@ var Play = sequelize.define('Played', {
 });
 
 var User = sequelize.define('User', {
+	uid: {type: Sequelize.STRING, unique: true, allowNull: false},
 	email: Sequelize.STRING,
 	name: Sequelize.STRING,
-	token: Sequelize.STRING,
-	fbid: Sequelize.STRING
+	fbid: Sequelize.STRING,
+	gender: Sequelize.STRING,
+	timezone: Sequelize.STRING,
+	locale: Sequelize.STRING,
+	location: Sequelize.STRING
 }, {instanceMethods: {
-	stats: function(callback) {
+	by: function(callback) {
 
 	}
 }});
@@ -112,17 +116,62 @@ app.get(['/signup/:id','/signup'], function(req, res) {
 
 // setup config
 app.get('/setup', function(req, res) {
+	var error = function(er) {
+		res.send(JSON.stringify({error: er}));
+	};
 
-//	req.session.user = 'asd';
-
-	FB.setAccessToken(req.query.token);
-	
-	FB.api('/me', function(response) {
+	var success = function(response) {
+		if (!req.session.UserId) {
+			req.session.UserId = response.id;
+		}
 		res.send(JSON.stringify(response));
-	});
-//	User.find(1).success(function(user) {
-		
-//	});
+	};
+
+	if (req.session.UserId) {
+		// get the user by our session
+		User.find(req.session.UserId).success(function(user) {
+			success(user);
+		});
+
+	} else if (req.query.token) {
+		// get the user by the facebook token
+		req.session.token = req.query.token;
+		var newFB = require('fb');
+		newFB.options({accessToken: req.query.token});
+
+		newFB.api('/me', function(response) {
+			if (response.error) {
+				if (response.error.code == 190) {
+					error('session expired');
+				} else {
+					error('could not find user from auth token');
+				}
+
+			} else {
+				User.find({where: {fbid: response.id}}).success(function(user) {
+					if (user) {
+						success(user);
+					} else {
+						// no user in the db. make one!
+						var user = User.build({
+							fbid: response.id,
+							name: response.name,
+							gender: response.gender,
+							timezone: response.timezone,
+							locale: response.locale,
+							email: response.email,
+							location: response.location[0] ? response.location[0].name : '',
+						});
+						user.save();
+						success(user);
+					}
+				});
+			}
+		});
+
+	} else {
+		error('no valid session logic');
+	}
 });
 
 // reset everthing and add test data
