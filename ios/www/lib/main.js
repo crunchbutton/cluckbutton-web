@@ -226,6 +226,7 @@ var jsApp = {
 			);
 		}, 100);
 
+		// when a level is loaded or unloaded
 		var first = true;
 		me.event.subscribe(me.event.LEVEL_LOADED,function(level) {
 			if (!first) {
@@ -238,6 +239,11 @@ var jsApp = {
 			} else {
 				first = false;
 			}
+			
+			// only start if the user has tokens
+			self.gameserver.startLevel(function() {
+				
+			});
 			self.playTime.restart();
 		});
 		
@@ -560,8 +566,7 @@ var GameServer = function(user, conected) {
 	// request a level start. must return token values
 	api.startLevel = function(level, complete) {
 		$.getJSON('/level/start', {
-			level: level,
-			
+			level: level
 		}, function(json) {
 			if (complete) {
 				complete(json.play);

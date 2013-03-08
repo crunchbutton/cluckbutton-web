@@ -30,7 +30,7 @@ var Session = sequelize.define('Session', {
 	token: Sequelize.TEXT
 });
 
-var Play = sequelize.define('Played', {
+var Play = sequelize.define('Play', {
 	start: Sequelize.DATE,
 	end: Sequelize.DATE,
 	jumps: Sequelize.INTEGER,
@@ -40,6 +40,8 @@ var Play = sequelize.define('Played', {
 	falls: Sequelize.INTEGER,
 	injury: Sequelize.INTEGER,
 	score: Sequelize.INTEGER
+}, {
+	tableName: 'Plays'
 });
 
 var User = sequelize.define('User', {
@@ -52,8 +54,28 @@ var User = sequelize.define('User', {
 	locale: Sequelize.STRING,
 	location: Sequelize.STRING
 }, {instanceMethods: {
-	by: function(callback) {
-
+	tokens: function(callback) {
+		Token.findAll({where: {UserId: this.id}}).success(function(tokens) {
+			var t = 0;
+			for (var x in tokens) {
+				t += (tokens[x].add ? 1 : -1);
+			}
+			callback(t);
+		});
+	},
+	tokenUp: function(callback) {
+		callback = callback || function(){};
+		Token.build({
+			UserId: this.id,
+			add: true
+		}).save().success(callback);
+	},
+	tokenDown: function(callback) {
+		callback = callback || function(){};
+		Token.build({
+			UserId: this.id,
+			add: false
+		}).save().success(callback);
 	}
 }});
 
@@ -68,6 +90,9 @@ var Level = sequelize.define('Level', {
 	gravity: Sequelize.FLOAT
 });
 
+var Token = sequelize.define('Token', {
+	add: Sequelize.BOOLEAN
+});
 
 // set up associations
 Level
@@ -75,12 +100,15 @@ Level
 
 User
 	.hasMany(Play)
-	.hasMany(Session);
+	.hasMany(Session)
+	.hasMany(Token);
 
 Play.belongsTo(Level);
 Play.belongsTo(User);
 
 Session.belongsTo(User);
+
+Token.belongsTo(User);
 
 sequelize.sync();
 
@@ -112,19 +140,38 @@ app.get('/level/start', function(req, res) {
 			if (user) {
 				Level.find(req.query.level).success(function(level) {
 					if (level) {
-						Play.build({
-							UserId: user.id,
-							LevelId: req.query.level,
-							start: new Date
-						}).save().success(function(play) {
-							res.write(JSON.stringify(play));
-							res.end();
+						user.tokens(function(tokens) {
+							if (tokens) {
+								// @todo: check to see if there was a token used in the last 10 seconds on the same level
+
+								// take away a token
+								user.tokenDown();
+			
+								Play.build({
+									UserId: user.id,
+									LevelId: req.query.level,
+									start: new Date
+								}).save().success(function(play) {
+									res.write(JSON.stringify(play));
+									res.end();
+								});
+			
+							} else {
+								// the user doesnt hae enough tokens
+								res.write(JSON.stringify({error: 'not enough tokens'}));
+								res.end();
+							}
 						});
+
+
+				
 					} else {
 						res.writeHead(404);
 						res.end();
 					}
 				});
+
+
 			} else {
 				res.writeHead(401);
 				res.end();
@@ -143,9 +190,24 @@ app.get('/level/end', function(req, res) {
 			if (user) {
 				Play.find(req.query.play).success(function(play) {
 					if (play) {
-						play.end = new Date;
-						play.score = req.query.score;
-						play.save();
+						if (!play.end) {
+							play.end = new Date;
+							play.score = req.query.score;
+							play.jumps = req.query.score;
+							play.elapsed = req.query.elapsed;
+							play.collected = req.query.collected;
+							play.killed = req.query.killed;
+							play.falls = req.query.falls;
+							play.injury = req.query.injury;
+							play.save().success(function(play) {
+								res.write(JSON.stringify(play));
+								res.end();
+							});
+						} else {
+							res.write(JSON.stringify(play));
+							res.end();						
+						}
+
 					} else {
 						res.writeHead(404);
 						res.end();
@@ -173,6 +235,7 @@ app.get('/setup', function(req, res) {
 		if (!req.session.UserId) {
 			req.session.UserId = response.id;
 		}
+		response.id = null;
 		res.send(JSON.stringify(response));
 	};
 
@@ -209,10 +272,12 @@ app.get('/setup', function(req, res) {
 							timezone: response.timezone,
 							locale: response.locale,
 							email: response.email,
-							location: response.location[0] ? response.location[0].name : '',
+							location: response.location ? response.location.name : null
 						});
-						user.save();
-						success(user);
+						user.save().success(function(u) {
+							success(u);
+						});
+						
 					}
 				});
 			}
