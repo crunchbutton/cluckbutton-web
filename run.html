@@ -78,6 +78,17 @@
 		html {
 			-webkit-text-size-adjust: none;
 		}
+		#hijack {
+			position: absolute;
+			z-index: 9999;
+			height: 400px;
+			width: 640px;
+			box-sizing: border-box;
+			top: 80px;
+			cursor: pointer;
+			left: 50%;
+			transform: translateX(-50%);
+		}
 
 		body {
 			background: #fff;
@@ -161,7 +172,7 @@
 </head>
 <body>
 <div class="content">
-
+	<div id="hijack"></div>
 	<div id="jsapp"></div>
 	<div class="need-rotate">
 		<h1>Please rotate your screen</h1>
