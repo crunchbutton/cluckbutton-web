@@ -1,0 +1,198 @@
+<!doctype html>
+<!-- 
+	loled together by devin
+-->
+<html>
+<head>
+	<title>Cluckbutton</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale = 1.0,maximum-scale = 1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link rel="apple-touch-icon-precomposed" href="/appicon.png">
+	<link href="http://fonts.googleapis.com/css?family=Amatic+SC:400,700" rel="stylesheet" type="text/css">
+	<link rel="shortcut icon" href="/favicon.png">
+	<style>
+		html, body, div, span, applet, object, iframe,
+		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+		a, abbr, acronym, address, big, cite, code,
+		del, dfn, em, img, ins, kbd, q, s, samp,
+		small, strike, strong, sub, sup, tt, var,
+		b, u, i, center,
+		dl, dt, dd, ol, ul, li,
+		fieldset, form, label, legend,
+		table, caption, tbody, tfoot, thead, tr, th, td,
+		article, aside, canvas, details, embed, 
+		figure, figcaption, footer, header, hgroup, 
+		menu, nav, output, ruby, section, summary,
+		time, mark, audio, video {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
+		}
+		/* HTML5 display-role reset for older browsers */
+		article, aside, details, figcaption, figure, 
+		footer, header, hgroup, menu, nav, section {
+			display: block;
+		}
+		body {
+			line-height: 1;
+			font-family: "Helvetica", "Arial", sans-serif;
+		}
+		ol, ul {
+			list-style: none;
+		}
+		blockquote, q {
+			quotes: none;
+		}
+		blockquote:before, blockquote:after,
+		q:before, q:after {
+			content: '';
+			content: none;
+		}
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+		}
+		
+		::selection {
+			background: rgba(255,0,168,.5);
+			color: #fff;
+			text-shadow: none;
+		}
+		::-moz-selection {
+			background: rgba(255,0,168,.5);
+			color: #fff;
+			text-shadow: none;
+		}
+		
+		input[type="submit"]:focus, input[type="button"]:focus, input[type="text"]:focus, button, :focus {
+			outline : none;
+		}
+		input[type="submit"]::-moz-focus-inner, input[type="button"]::-moz-focus-inner, button::-moz-focus-inner {
+			border : 0;
+		}
+		
+		html {
+			-webkit-text-size-adjust: none;
+		}
+
+		body {
+			background: #fff;
+		}
+		h1, h2, h3, button {
+			font-family: 'Amatic SC', cursive;
+		}
+		h1 {
+			font-size: 75px;
+		}
+		h2 {
+			margin-top: 90px;
+			font-size: 30px;
+		}
+		h3 {
+			font-size: 25px;
+			margin-bottom: 50px;
+		}
+			a {
+				color: #e8830c;
+				text-decoration: underline;
+			}
+			p {
+				text-align: left;
+				line-height: 1.8em;
+				font-size: 14px;
+			}
+		.directions {
+			margin-top: 50px;
+		}
+		.content {
+			width: 640px;
+			text-align: center;
+			margin: 0 auto;
+			margin-top: 30px;
+			padding-top: 50px;
+		}
+		#jsapp {
+			height: 400px;
+			width: 640px;
+		}
+		.need-rotate {
+			margin-top: 80px;
+			display: none;
+		}
+		@media only screen 
+		and (min-device-width : 320px) 
+		and (max-device-width : 480px) {
+			.content {
+				width: 320px;
+				margin: 0;
+				padding: 0;
+			}
+			.directions {
+				display: none;
+			}
+		}
+		@media screen and (device-width:320px) and (orientation:portrait) {
+			#jsapp {
+				height: 280px;
+				width: 320px;
+			}
+		}
+		
+		@media screen and (device-width:320px) and (orientation:landscape) {
+		    .need-rotate {
+		    	display: none;
+		    }
+		    #jsapp {
+		    	display: block;
+		    }
+		}
+	</style>
+	<script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="lib/socket.io.client.js"></script>
+	<script type="text/javascript" src="lib/melonJS-0.9.6.js"></script>
+	<script type="text/javascript" src="lib/entities.js"></script>
+	<script type="text/javascript" src="lib/main.js"></script>
+
+	<script type="application/x-javascript">addEventListener('touchstart',function(){}); addEventListener('load', function(event) {setTimeout(scrollTo, 80, 0, 1);}, false);</script>
+</head>
+<body>
+<div class="content">
+
+	<div id="jsapp"></div>
+	<div class="need-rotate">
+		<h1>Please rotate your screen</h1>
+		<br /><br /><br /><br />
+		<h3>To play CluckButton, you will need to rotate your screen to landscape mode.</h3>
+		<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+	</div>
+
+	<div class="directions">
+		<h3>use the <b>arrow keys</b> to move. press <b>space</b> to jump.</h3>
+	</div>
+	
+	<br><br>
+	<p>
+		<a href="http://cluckbutton.com/">&laquo;&nbsp;&nbsp;Back</a>
+	</p>
+</div>
+</body>
+
+
+<script type="text/javascript">
+	var DEBUG = location.hostname == 'cluckbutton.com' ? false : true;
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-916699-23']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+</html>
